@@ -1,8 +1,6 @@
 /*
-	File Name: TypeText.as
-	Programmeur: William Mallette
 	Date: 16-11-2021
-	Description: Le controleur de base du texte
+	Description: Handles text
 */
 
 package scripts {
@@ -30,13 +28,13 @@ package scripts {
 		public var chararray:Array;
 		public var onAdvance:Function;
 		
-		// constructor
+		// Constructor
 		public function TypeText(txt = "", voice:String = "", advmode:String = "default", endfunc:Function = null, averageDelay:int = 1) {
-			// commencer le text
+			// Start the text
 			startText(txt, voice, advmode, endfunc, averageDelay);
 		}
 		
-		// Vérifier les clés X et C pour leurs effets
+		// Check C and X for their effects
 		private function update(e:Event):void {
 			if (Input.getKey(67) == true) {
 				if (advancemode == "default") {
@@ -46,36 +44,36 @@ package scripts {
 			else if (Input.getKey(88) == true) {finishText();}
 		}
 		
-		// commencer le text (fonction séparée pour qu'on peut recommencer un objet qui est déjà initialisé
+		// Start text
 		public function startText(txt = "", voice:String = "", advmode:String = "default", endfunc:Function = null, averageDelay:int = 1):void {
-			// reset txtpages
+			// Reset txtpages
 			txtpages = [];
 			if (txt is String) {txtpages.push(txt);}
 			else if (txt is XMLList) {txtpages = XMLToDialogue(txt);}
 			else {txtpages = txt;}
 			
-			// Changer des variables nécessaires
+			// Change variables
 			txtvoice = voice;
 			advancemode = advmode;
 			avgDelay = averageDelay;
 			if (endfunc != null) {func = endfunc;}
 			else {func = function() {};}
 			
-			// L'advancemode
+			// The advancemode
 			if (advancemode == "default") {
 				eventKey = "TypeText-" + String(Math.random());
 				Input.addEvent(90, tryAdvance, eventKey);
 			}
 			
-			// Initialiser le premier page
+			// Initialise the first page
 			pageindex = 0;
 			setupPage();
 			
-			// Ajouter l'eventListener
+			// Add the eventListener
 			this.addEventListener(Event.ENTER_FRAME, update, false, 0, true);
 		}
 		
-		// Si le texte est complèt, avancer d'une page
+		// If the text is complete, move on to the next
 		private function tryAdvance():void {
 			if (textfield.text.length == chararray.length) {
 				pageindex++;
@@ -84,34 +82,34 @@ package scripts {
 			}
 		}
 		
-		// Initialiser une page de texte
+		// Initialise a text page
 		private function setupPage():void {	
-			// S'il y a un autre page
+			// If there's still a page
 			if (pageindex < txtpages.length) {
-				// Reset le TextField et charindex
+				// Reset the TextField and charindex
 				textfield.text = "";
 				charindex = 0;
 				
-				// Obtenir fulltext et chararray
+				// Get fulltext and chararray
 				fulltext = txtpages[pageindex];
 				chararray = fulltext.split("");
 				
-				// Commencer à ajouter les caractères
+				// Start adding characters
 				addChar();
 			}
-			// Sinon, termine le texte.
+			// Otherwise, end the text
 			else {
 				endText();
 			}
 		}
 		
-		// Terminer la ligne courant
+		// Finish the current line (X)
 		public function finishText():void {
 			charindex = fulltext.length;
 			textfield.text = fulltext;
 		}
 		
-		// Avancer au prochain ligne de texte (presque) instamment, hold C pour skipper tout le texte
+		// Skip through with C
 		private function skipText():void {
 			if (!queuedSkip) {
 				queuedSkip = true;
@@ -120,22 +118,22 @@ package scripts {
 			}
 		}
 		
-		// Ajouter un caractère
+		// Add a character
 		private function addChar():void {
-			// Seulement si on est en dedans la longueur du fulltext
+			// Only if we haven't typed out the fulltext yet
 			if (charindex < fulltext.length) {
-				// Obtenir le nouveau caractère et le prochain (loop au premier si nécessaire)
+				// Get the next two characters
 				var newchar:String = chararray[charindex];
 				var nextchar:String = chararray[(charindex + 1) % chararray.length];
 				
-				// Jouer un son si les conditions sont bonnes
+				// Play a sound if the stars align
 				if (txtvoice != "" && charindex % 2 == 0 && newchar.match(mutedChars) == null) {SoundLibrary.play(txtvoice, 0.5);}
 				
-				// Ajouter le nouveau caractère et changer charindex
+				// Add the new character and increase charindex
 				textfield.appendText(newchar);
 				charindex++;
 				
-				// Calculer un délai et attendre avant ajouter un autre caractère (la ponctuation cause un délai supérieur, mais pas si le prochaine caractère est aussi de la ponctuation)
+				// Calculate the delay between this char and the next
 				var delay:int = avgDelay;
 				if (newchar == " ") {delay = 0;}
 				else if (newchar.match(punctuation) != null && nextchar.match(punctuation) == null) {delay = 10;}
@@ -143,12 +141,12 @@ package scripts {
 			}
 		}
 		
-		// Terminer le texte
+		// End the text
 		public function endText():void {
 			Input.removeEvent(90, eventKey);
 			this.removeEventListener(Event.ENTER_FRAME, update);
 			
-			// Exécuter la méthode stockée
+			// Call the function
 			func.call();
 		}
 	}

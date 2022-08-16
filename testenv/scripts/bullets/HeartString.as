@@ -1,8 +1,6 @@
 /*
-	File Name: HeartString.as
-	Programmeur: William Mallette
 	Date: 08-12-2021
-	Description: Le coeur et sa corde pour HeartAttack
+	Description: [[Heart]] ON A [[Chain]]
 */
 
 package scripts.bullets {
@@ -13,19 +11,19 @@ package scripts.bullets {
 	public class HeartString extends Sprite {
 		private var balls:Array;
 		
-		// constructor
+		// Constructor
 		public function HeartString() {
 			balls = [ball1, ball2, ball3, ball4, ball5, ball6, ball7, ball8, ball9, ball10];
 			heart.chain = this;
 		}
 		
-		// Bouger le coeur et les balles en conséquence
+		// Move the heart and the balls
 		public function moveHeartTo(x:Number = 0, y:Number = 0):void {
 			if (heart) {
 				heart.x = x;
 				heart.y = y;
 			}
-			// Positionner proportionnel au heart
+			// Positioning balls relative to the heart
 			for (var ball in balls) {
 				if (balls[ball]) {
 					balls[ball].x = ball * x / 10;
@@ -34,12 +32,12 @@ package scripts.bullets {
 			}
 		}
 		
-		// Shortcut pour un déplacement par rapport à la position courant
+		// Move relative to current position
 		public function moveHeart(x:Number = 0, y:Number = 0):void {
 			moveHeartTo(heart.x + x, heart.y + y);
 		}
 		
-		// Commencer la destruction
+		// Begin destroying the HeartString
 		public function destroy():void {
 			heart.destroy();
 			heart.chain = null;
@@ -48,15 +46,15 @@ package scripts.bullets {
 			for (var i:int = 0; i < balls.length; i++) {new Wait(4 * (i + 1), destroyball);}
 		}
 		
-		// Détruire la chaine jusqu'à temps qu'il n'y a rien qui reste
+		// The chain falls apart until there is nothing left
 		private function destroyball():void {
-			// Enlever le dernier balle de l'array
+			// Remove the last ball in the array
 			removeChild(balls[balls.length - 1]);
 			balls.splice(balls.length - 1, 1);
-			// Jouer un son
+			// Play a sound
 			SoundLibrary.play("bomb", 0.5);
 			
-			// Endlever le HeartString quand tout est fini
+			// Remove the object when everything is gone
 			if (balls.length == 0) {
 				balls = null;
 				this.parent.removeChild(this);

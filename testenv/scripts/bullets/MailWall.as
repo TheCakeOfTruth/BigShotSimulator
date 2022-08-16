@@ -1,8 +1,6 @@
 /*
-	File Name: MailWall.as
-	Programmeur: William Mallette
 	Date: 02-11-2021
-	Description: Les icones de e-mail de l'attaque de RollerCoaster
+	Description: I USED TO BE THE [[E-MAIL]] GUY
 */
 
 package scripts.bullets {
@@ -10,14 +8,14 @@ package scripts.bullets {
 	import scripts.SoundLibrary;
 
 	public class MailWall extends Bullet {
-		// constructor
+		// Constructor
 		public function MailWall() {
 			shootable = true;
 			destroyBigShot = true;
 			element = 6;
 		}
 		
-		// Quand on frappe avec un Shot, jouer un son (et détruire le Shot, voir Bullet)
+		// It blocks the shots
 		public override function onShot(shot):void {
 			SoundLibrary.play("bell", 0.5);
 		}

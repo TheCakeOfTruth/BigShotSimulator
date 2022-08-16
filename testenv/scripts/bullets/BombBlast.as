@@ -1,15 +1,13 @@
 /*
-	File Name: BombBlast.as
-	Programmeur: William Mallette
 	Date: 02-12-2021
-	Description: Les colonnes qui proviennent d'un Bomb
+	Description: The blast of the bombs
 */
 
 package scripts.bullets {
 	import scripts.Bullet;
 	
 	public class BombBlast extends Bullet {
-		// constructor
+		// Constructor
 		public function BombBlast() {
 			destroyOnHit = false;
 			element = 6;

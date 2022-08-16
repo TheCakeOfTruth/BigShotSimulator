@@ -1,8 +1,0 @@
-optimize cungadero?
-
-make more attacks?
-ending pipis attack?
-
-add miss text when failing spare
-defending hurt animation
-make spells only advance after their animations are done (done for items)

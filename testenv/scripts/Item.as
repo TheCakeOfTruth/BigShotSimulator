@@ -1,8 +1,6 @@
 /*
-	File Name: Item.as
-	Programmeur: William Mallette
 	Date: 22-11-2021
-	Description: Les items
+	Description: The items
 */
 
 package scripts {
@@ -17,17 +15,17 @@ package scripts {
 		public static var krisweapons:Dictionary = new Dictionary();
 		public static var inventory:Array = [];
 		
-		// constructor
+		// Constructor
 		public function Item() {
 			/*
-				name(String) = nom
+				name(String) = name
 				info(String) = description
-				effect(Function) = fonction exécuté quand l'item est utilisé
-				targetPlayer(Boolean) = si l'item est consommé directement ou on doit sélectionner Kris
-				noConsume(Boolean) = ne pas supprimer l'item sur utilisation
+				effect(Function) = function that runs when item is used
+				targetPlayer(Boolean) = if it's consumed instantly or if we need to target someone
+				noConsume(Boolean) = doesn't delete the item on use
 			*/
 		
-			// Initier les items
+			// Initiate items
 			items["DarkCandy"] = {name: "Dark Candy", info: Main.getText("itemHeal") + "\n40 HP", effect: function() {Player.heal(40);}, targetPlayer: true};
 			items["TopCake"] = {name: "Top Cake", info: Main.getText("itemHeal") + "\n160 HP", effect: function() {Player.heal(160);}, targetPlayer: false};
 			items["Darkburger"] = {name: "Darkburger", info: Main.getText("itemHeal") + "\n70 HP", effect: function() {Player.heal(70);}, targetPlayer: true};
@@ -42,7 +40,7 @@ package scripts {
 			items["CDBagel"] = {name: "CD Bagel", info: Main.getText("itemHeal") + "\n80 HP", effect: function() {Player.heal(80);}, targetPlayer: true};
 			items["DDBurger"] = {name: "DD-Burger", info: Main.getText("DDBurgerDesc"), effect: function() {
 				Player.heal(60); 
-				// Remplacer le DD-Burger avec un Darkburger
+				// Replace DD-Burger with Darkburger
 				inventory[UI.instance.selectedOption] = items["Darkburger"];
 			}, targetPlayer: true, noConsume: true};
 			items["ButlerJuice"] = {name: "ButlerJuice", info: Main.getText("itemHeal") + "\n100 HP", effect: function() {Player.heal(100);}, targetPlayer: true};
@@ -53,7 +51,7 @@ package scripts {
 			items["Glowshard"] = {name: "Glowshard", info: "Glowshard", effect: function() {}, targetPlayer: true, noConsume: true};
 			items["SPoison"] = {name: "S.POISON", info: Main.getText("itemHeal") + "?\n40 HP", effect: function() {
 				Player.heal(40);
-				// Réduire graduellement HP par 60 (ne pas dépasser 1 HP)
+				// Gradually reduce HP by 60 (doesn't go below 1)
 				for (var hurt:int = 0; hurt < 60; hurt++) {
 					new Wait(hurt * 10, function() {
 						if (UI.instance.hp > 1) {
@@ -64,7 +62,7 @@ package scripts {
 			}, targetPlayer: true};
 			
 			
-			/* Items de Deltarune non-inclus (à cause d'un manque d'utilité):
+			/* Currently non-included items
 			   Revive Mint
 			   Life Dew
 			   Revive Dust
@@ -73,18 +71,18 @@ package scripts {
 			*/
 			
 			/*
-				name(String) = nom
-				df(Number) = défense
-				at(Number) = attaque
-				magic(Number) = magie (stat non-utilisé en ce moment)
-				elementResist(int) = l'élément à résister (le seul élément est '6')
-				resistMultiplier(Number) = multiplier tout dommage d'un Bullet de l'élément (elementResist) par ce nombre
-				grazeArea(Number) = augmente l'aire du "grazeZone" du Player (pas ajouté en ce moment)
-				grazeTime(Number) = multiplie le montant de temps enlevé du waveTimer (voir EnemyWave) lorsqu'on graze (pas ajouté en ce moment)
-				TPGain(Number) = multiple le montant de TP on gagne lorsqu'on graze par ce nombre (pas ajouté en ce moment)
+				name(String) = name
+				df(Number) = defense
+				at(Number) = attack
+				magic(Number) = magic
+				elementResist(int) = element to resist
+				resistMultiplier(Number) = multiplier applied to bullets of resisted element
+				grazeArea(Number) = increase grazeArea
+				grazeTime(Number) = increases amount of time taken off waveTimer by grazing
+				TPGain(Number) = increase TP gained by grazing
 			*/
 			
-			// Initier les armures, il y a certains effets spécials, mais ils ne sont pas tous inclus en ce moment.
+			// Initiate armors
 			armors["AmberCard"] = {name: "Amber Card", df: 1};
 			armors["BShotBowtie"] = {name: "B.ShotBowtie", df: 2, magic: 1};
 			armors["ChainMail"] = {name: "Chain Mail", df: 3};
@@ -108,7 +106,7 @@ package scripts {
 			armors["TwinRibbon"] = {name: "Twin Ribbon", df: 3, grazeArea: 1.5625};
 			armors["WhiteRibbon"] = {name: "White Ribbon", df: 2};
 			
-			// Initier les armes de Kris
+			// Initiate Kris' weapons
 			krisweapons["MechaSaber"] = {name: "Mecha Saber", at: 4};
 			krisweapons["BounceBlade"] = {name: "Bounce Blade", at: 2, df: 1};
 			krisweapons["SpookySword"] = {name: "Spooky Sword", at: 2};

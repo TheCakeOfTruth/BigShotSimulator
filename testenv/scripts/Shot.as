@@ -1,8 +1,6 @@
 ﻿/*
-	File Name: Shot.as
-	Programmeur: William Mallette
 	Date: 21-10-2021
-	Description: La petite balle jaune utilisé par le coeur
+	Description: Small shot
 */
 
 package scripts {
@@ -19,7 +17,7 @@ package scripts {
 		
 		// Constructor
 		public function Shot(x:Number, y:Number) {
-			// Ajouter un eventListener, positionner la balle et ses points
+			// Add eventListener, position things
 			eventID = "Shot-" + String(Math.random());
 			GlobalListener.addEvent(update, eventID);
 			this.x = x;
@@ -31,29 +29,29 @@ package scripts {
 			shotID = Player.shots.push(this) - 1;
 		}
 		
-		// Effectuer des changements à chaque frame
+		// Every frame
 		private function update():void {
-			// Boujer la balle et ses points
+			// Move shot and points
 			this.x += vel;
 			for each (var pt:Point in hitPoints) {pt.x += vel;}
 			pt = null;
 			
-			// Si la balle dépasse 100 pixels à la droite de l'écran, enlève-la.
+			// Remove when offscreen
 			if (this.x > 640) {
 				destroy();
 			}
 		}
 		
-		// Détruire l'objet
+		// Destroy the object
 		public function destroy():void {
-			// Enlever l'objet de l'array de Shots, adjuster les shotID des autres Shots.
+			// Remove from array, adjust other shotIDs
 			Player.shots.splice(shotID, 1);
 			for each (var shot in Player.shots) {
 				if (shot.shotID > shotID) {shot.shotID--;}
 			}
 			shot = null;
 		
-			// Enlèver l'eventListener pour prévenir un memory leak et enlève l'objet du DisplayList
+			// Remove eventListener and object
 			GlobalListener.removeEvent(eventID);
 			this.parent.removeChild(this);
 		}

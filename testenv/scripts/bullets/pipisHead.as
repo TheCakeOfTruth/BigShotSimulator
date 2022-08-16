@@ -1,8 +1,6 @@
 /*
-	File Name: pipisHead.as
-	Programmeur: William Mallette
 	Date: 28-12-2021
-	Description: Les têtes de Spamton qui proviennent du pipis
+	Description: Spamton Heads (pipis)
 */
 
 package scripts.bullets {
@@ -14,24 +12,24 @@ package scripts.bullets {
 	public class pipisHead extends Bullet {
 		public var vector:MovementVector;
 		
-		// constructor
+		// Constructor
 		public function pipisHead(angleRange:Array = null, minSpeed:Number = 2) {
 			element = 6;
-			// Créer un vecteur avec une direction aléatoire entre les paramètres de angleRange et un magnitude relativement aléatoire
+			// Pick a random direction within the range given
 			if (angleRange) {
 				vector = new MovementVector(RandomRange(angleRange[0], angleRange[1]), RandomRange(minSpeed, minSpeed + 3));
 			}
-			// Créer un vecteur avec une direction complètement aléatoire et un magnitude relativement aléatoire
+			// If no range is given, completely random scattering
 			else {
 				vector = new MovementVector(360 * Math.random(), RandomRange(minSpeed, minSpeed + 3));
 			}
-			// Commencer l'animation à un frame aléatoire pour la diversité visuel
+			// Start the animation at a random spot
 			this.gotoAndPlay(int(RandomRange(0, 39)));
 		}
 		
-		// À chaque frame,
+		// Every frame
 		public override function update():void {
-			// Le mouvement
+			// Move the head
 			var dim:Point = vector.getDimensions();
 			this.x += dim.x;
 			this.y -= dim.y;

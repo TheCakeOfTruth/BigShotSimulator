@@ -1,8 +1,6 @@
 /*
-	File Name: TutorialObj.as
-	Programmeur: William Mallette
 	Date: 16-01-2022
-	Description: Un objet qui gère le tutorial
+	Description: Handles the tutorial
 */
 
 package scripts {
@@ -14,7 +12,7 @@ package scripts {
 	import flash.geom.ColorTransform;
 	
 	public class TutorialObj extends MovieClip {
-		// constructor
+		// Constructor
 		public function TutorialObj() {
 			// TextFormat
 			var format:TextFormat = new TextFormat(); 
@@ -23,7 +21,7 @@ package scripts {
 			txt.textfield.autoSize = TextFieldAutoSize.CENTER;
 			txt.textfield.wordWrap = false;
 			
-			// Les eventListeners
+			// eventListeners
 			arrowLeft.addEventListener(MouseEvent.ROLL_OVER, makeButtonYellow);
 			arrowLeft.addEventListener(MouseEvent.ROLL_OUT, makeButtonWhite);
 			arrowLeft.addEventListener(MouseEvent.CLICK, changePage);
@@ -32,20 +30,20 @@ package scripts {
 			arrowRight.addEventListener(MouseEvent.CLICK, changePage);
 		}
 		
-		// Changer un bouton à jaune et jouer un son
+		// Make button yellow and play sound
 		private function makeButtonYellow(e:MouseEvent):void {
 			e.target.transform.colorTransform = new ColorTransform(1, 1, 0);
 			SoundLibrary.play("menumove");
 		}
 		
-		// Changer un bouton à blanc
+		// Reset button to white
 		private function makeButtonWhite(e:MouseEvent):void {
 			e.target.transform.colorTransform = new ColorTransform(1, 1, 1);
 		}
 		
-		// Changer de page (frame)
+		// Change the page (frame)
 		private function changePage(e:MouseEvent):void {
-			// Déterminer quelle frame auquel il faut y aller (je ne pouvais pas utiliser % car les frames commencent à 1)
+			// Determine which frame to go to
 			var targetFrame:int;
 			if (e.target == arrowLeft) {
 				targetFrame = currentFrame - 1;
@@ -55,7 +53,7 @@ package scripts {
 				targetFrame = currentFrame + 1;
 				if (targetFrame > totalFrames) {targetFrame = (targetFrame - totalFrames);}
 			}
-			// Changer de frame et jouer un son
+			// Change the frame and play a sound
 			gotoAndStop(targetFrame);
 			SoundLibrary.play("menuselect");
 		}
@@ -70,7 +68,7 @@ package scripts {
 			arrowRight.removeEventListener(MouseEvent.CLICK, changePage);
 		}
 		
-		// Lorsqu'on change le 'variable' tutorialText, modifier txt.textfield.text
+		// When you change tutorialText, it'll also change the textfield.
 		public function set tutorialText(val:String):void {
 			txt.textfield.text = Main.getText(val);
 		}

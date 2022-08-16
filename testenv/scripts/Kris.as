@@ -1,8 +1,6 @@
 ﻿/*
-	File Name: Kris.as
-	Programmeur: William Mallette
 	Date: 12-11-2021
-	Description: Kris, le personnage principal
+	Description: * It's what they call "You."
 */
 
 package scripts {
@@ -18,16 +16,16 @@ package scripts {
 		public var attack:Number = 14;
 		public var defense:Number = 2;
 		
-		// constructor
+		// Constructor
 		public function Kris() {instance = this;}
 		
-		// Retourner l'AT combiné de Kris et l'arme qu'iel tiens.
+		// Returns combined AT stat
 		public function calculateAttack():Number {
-			// L'attaque de l'arme
+			// Get Weapon AT
 			var weaponat:Number = Number(weapon.at);
 			if (isNaN(weaponat)) {weaponat = 0;}
 			
-			// L'attaque de l'armure (s'il y a lieu)
+			// Get Armor AT
 			var armorat:Number = 0;
 			for each (var equipment:Object in armor) {
 				var at:Number = Number(equipment.at);
@@ -36,13 +34,13 @@ package scripts {
 			}
 			equipment = null;
 			
-			// Retourner la somme
+			// Return sum
 			return attack + weaponat + armorat;
 		}
 		
-		// Retourner le DF combiné de Kris et leur équipement
+		// Returns combined DF stat
 		public function calculateDefense():Number {
-			// La défense de l'armure
+			// Get Armor DF
 			var armordf:Number = 0;
 			for each (var equip:Object in armor) {
 				var df:Number = Number(equip.df);
@@ -51,18 +49,18 @@ package scripts {
 			}
 			equip = null;
 			
-			// La défense de l'arme (s'il y a lieu)
+			// Get Weapon DF
 			var weapondf:Number = Number(weapon.df);
 			if (isNaN(weapondf)) {weapondf = 0;}
 			
-			// Retourner la somme
+			// Return sum
 			return defense + armordf + weapondf;
 		}
 		
-		// Retourner la résistence élémental de l'équipement
+		// Return elemental resistance 
 		public function getResistPercent(element):Number {
 			var total:Number = 1;
-			// Pour chaque armure, s'il y a un résistence à l'élément spécifié, modifier total par le montant stocké dans l'item
+			// For every armor, apply appropriate resistance
 			for each (var armorpiece:Object in armor) {
 				if (armorpiece.elementResist == element) {
 					total *= armorpiece.resistMultiplier;

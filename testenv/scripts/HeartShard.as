@@ -1,8 +1,6 @@
 /*
-	File Name: HeartShard.as
-	Programmeur: William Mallette
 	Date: 05-01-2022
-	Description: Les petits "shards" du coeur quand on meurt
+	Description: The shards from the death anim
 */
 
 package scripts {
@@ -16,31 +14,31 @@ package scripts {
 		private var timer:int = 0;
 		private var vector:MovementVector;
 		
-		// constructor
+		// Constructor
 		public function HeartShard() {
 			vector = new MovementVector(RandomRange(0, 360), RandomRange(3, 5));
 			addEventListener(Event.ENTER_FRAME, update);
 		}
 		
-		// À chaque frame
+		// Every frame
 		private function update(e:Event):void {
-			// Fade après du temps
+			// Fade out after a while
 			timer++;
 			if (timer > 60 && this.alpha > 0) {this.alpha -= 0.025;}
 		
-			// La gravité
+			// Gravity
 			vector.add(new MovementVector(270, 0.098));
 			
-			// Le mouvement
+			// Movement
 			var dim:Point = vector.getDimensions();
 			this.x += dim.x;
 			this.y -= dim.y;
 			
-			// Détruire l'objet
+			// Destruction
 			if (this.y > 490) {destroy();}
 		}
 		
-		// Détruire l'objet
+		// Destruction
 		private function destroy():void {
 			removeEventListener(Event.ENTER_FRAME, update);
 			this.parent.removeChild(this);

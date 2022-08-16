@@ -1,8 +1,6 @@
 /*
-	File Name: GameOverScreen.as
-	Programmeur: William Mallette
 	Date: 06-01-2022
-	Description: L'écran de "GAME OVER"
+	Description: GAME OVER
 */
 
 package scripts {
@@ -20,11 +18,11 @@ package scripts {
 		private var goscreen:GameOverScreen;
 		private var selectedOption:String;
 		
-		// constructor
+		// Constructor
 		public function GameOverScreen() {
 			goscreen = this;
 		
-			// Changer le letterSpacing et l'alignement des textes
+			// Change letterSpacing and text alignment
 			var format:TextFormat = new TextFormat();
 			format.letterSpacing = -2;
 			format.align = TextFormatAlign.CENTER;
@@ -35,16 +33,16 @@ package scripts {
 			txtQuit.autoSize = TextFieldAutoSize.CENTER;
 			txtQuit.wordWrap = false;
 			
-			// Cacher le menu
+			// Hide menu
 			txtContinue.alpha = 0;
 			txtQuit.alpha = 0;
 			heart.alpha = 0;
 			
-			// Changer le texte
+			// Change text
 			txtContinue.text = Main.dialogue.gameOverContinue;
 			txtQuit.text = Main.dialogue.gameOverGiveUp;
 			
-			// Fade in l'écran de GAME OVER
+			// Fade in GAME OVER screen
 			alpha = 0;
 			new RepeatUntil(function() {
 				alpha += 0.025;
@@ -52,7 +50,7 @@ package scripts {
 				if (alpha >= 1) {alpha = 1; return true;}
 			});
 			
-			// Après un délai, fade in le menu
+			// Wait a bit & fade in menu
 			new Wait(30, function() {
 				new RepeatUntil(function() {
 					heart.alpha += 0.025;
@@ -60,7 +58,7 @@ package scripts {
 					txtQuit.alpha += 0.05;
 				}, function() {
 					if (heart.alpha >= 0.60) {
-						// Ajouter des Input events
+						// Add Input events
 						Input.addEvent(37, function() {moveHeart("l");}, "MoveHeartLeft");
 						Input.addEvent(39, function() {moveHeart("r");}, "MoveHeartRight");
 						Input.addEvent(90, handlePrompt, "GameOverPrompt");
@@ -71,12 +69,12 @@ package scripts {
 			});
 		}
 		
-		// Bouger le coeur entre les options
+		// Move the heart between the options
 		private function moveHeart(dir:String):void {
-			// Reset les RepeatUntils
+			// Reset RepeatUntils
 			RepeatUntil.clearQueue();
 			
-			// Changer des variables et des couleurs
+			// Change variables and colors
 			var x1:Number = heart.x;
 			var x2:Number;
 			if (dir == "l") {
@@ -92,7 +90,7 @@ package scripts {
 				x2 = 424;
 			}
 			
-			// Un RepeatUntil pour le mouvement du coeur
+			// RepeatUntil for heart movement
 			var t:Number = 0;
 			new RepeatUntil(function() {
 				t += 0.25;
@@ -102,11 +100,11 @@ package scripts {
 			});
 		}
 		
-		// Lorsqu'on touche le clé Z
+		// When you press Z
 		private function handlePrompt():void {
-			// En sélectionnant "continue"
+			// While selecting "Continue"
 			if (selectedOption == "continue") {
-				// Arrêter les events Input et la musique, jouer un son
+				// Stop events and inputs and music & play a sound
 				Input.clearEvents();
 				Main.bgm.stop();
 				SoundLibrary.play("intronoise");
@@ -118,7 +116,7 @@ package scripts {
 				whitescreen.alpha = 0;
 				Main.screen.addChild(whitescreen);
 				
-				// Fade in le whitescreen et fade out les autres choses
+				// Fade in a white screen and fade out everything else
 				new RepeatUntil(function() {
 					whitescreen.alpha += 0.008;
 					if (txtContinue.alpha > 0) {
@@ -129,7 +127,7 @@ package scripts {
 				}, function() {
 					if (whitescreen.alpha >= 1) {
 						new Wait(20, function() {
-							// Enlever le GameOverScreen et le whitescreen, recommencer le jeu
+							// Remove GameOverScreen and restart the game
 							Main.screen.removeChild(goscreen);
 							Main.screen.removeChild(whitescreen);
 							Main.reinitialize();
@@ -138,14 +136,14 @@ package scripts {
 					}
 				});
 			}
-			// En sélectionnant "give up"
+			// While selecting "Give Up"
 			else if (selectedOption == "giveup") {
-				// Arrêter les events Input, la musique, et cacher le GameOverScreen
+				// Remove events and music, hide everything
 				Input.clearEvents();
 				Main.bgm.stop();
 				this.visible = false;
 				
-				// Créer le texte
+				// Create text
 				var quitText:GasterText = new GasterText();
 				var newformat:TextFormat = new TextFormat();
 				newformat.letterSpacing = 7;
@@ -153,7 +151,7 @@ package scripts {
 				quitText.textfield.defaultTextFormat = newformat;
 				quitText.x = 460;
 				quitText.y = 210;
-				// Commencer le texte
+				// Start text
 				Main.screen.addChild(quitText);
 				quitText.startText(Main.dialogue.gameOverQuit, "", "default", function() {
 					quitText.textfield.text = "";
@@ -162,9 +160,9 @@ package scripts {
 			}
 		}
 		
-		// Un vrai "game over"
+		// Truly a "Game Over" moment
 		private function darkscreen():void {
-			// Arrêter les events Input, jouer une chanson, fermer le jeu lorsque la chanson est fini
+			// Remove all events, play music, close game when song ends
 			Input.clearEvents();
 			SoundLibrary.play("mus_darkness");
 			new Wait(4150, function() {fscommand("quit");});

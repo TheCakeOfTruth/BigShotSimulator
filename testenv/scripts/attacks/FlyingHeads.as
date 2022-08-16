@@ -1,8 +1,6 @@
 /*
-	File Name: FlyingHeads.as
-	Programmeur: William Mallette
 	Date: 28-11-2021
-	Description: Le premier attaque
+	Description: First attack with the three rows of heads flying in
 */
 
 package scripts.attacks {
@@ -13,56 +11,56 @@ package scripts.attacks {
 	public class FlyingHeads extends EnemyWave {
 		private var heads:Array = [];
 		
-		// constructor
+		// Constructor
 		public function FlyingHeads() {
-			// Établir les paramètres du wave
+			// Parameters
 			waveTimer = 8600;
 			arenaConfig = {x: 301, y: 171, width: 240, height: 112};
-			// Après un délai, commence les headVolleys
+			// Wait a bit and start sending in volleys of heads
 			new Wait(20, headVolley);
 			new Wait(120, headVolley);
 			new Wait(240, headVolley);
 			new Wait(360, headVolley);
 		}
 		
-		// Créer quatre FlyingHead
+		// Makes four FlyingHeads
 		private function headVolley():void {
-			// Choisir un row aléatoire
+			// Pick a random row
 			var headrow:int = Math.floor(Math.random() * 3);
 			
-			// Créer les quatre FlyingHead
+			// Make the FlyingHeads
 			for (var i:int = 0; i < 4; i++) {
 				new Wait(i * 8, function() {if (waveTimer > 0) {createHead(700 + i * 20, arena.y + 40 * (headrow - 1));}});
 			}
 		}
 		
-		// À chaque frame
+		// Every frame
 		public override function update():void {
 			for each (var b:FlyingHead in heads) {
-				// Faire qu'on peut seulement détruire le FlyingHead s'il est sur l'écran
+				// Only shoot the head if it's on-screen
 				if (b.x > 640) {b.shootable = false;}
 				else {b.shootable = true;}
 				
-				// Bouger chaque FlyingHead avec une vitesse variable
+				// Move the heads with varying speed
 				var xvel:Number = 2 * (-Math.cos(((Math.PI * b.x) / 320) + 320 * Math.PI) - 2.5);
 				b.x += xvel;
 			}
 			b = null;
 		}
 		
-		// Nettoyer les objets
+		// Make sure the objects can be properly removed
 		public override function cleanup(transition:Boolean):void {heads = null;}
 		
-		// Créer un FlyingHead avec les paramètres désirés
+		// Make a FlyingHead with the right parameters
 		private function createHead(x:Number = 700, y:Number = 170):void {
-			// Créer, positionner, arrêter l'animation, et stocker
+			// Create, position, stop, and store the head
 			var head:FlyingHead = new FlyingHead();
 			head.x = x;
 			head.y = y;
 			head.stop();
 			addBullet(head);
 			heads.push(head);
-			// Après un moment, joue l'animation du FlyingHead (il y a du code dans l'animation qui gère les HeadPellets)
+			// Wait a bit, and play the animation (there's code in the animation that launches the pellets)
 			new Wait(65, head.play);
 		}
 	}

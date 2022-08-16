@@ -1,6 +1,4 @@
 ﻿/*
-	File Name: pipis.as
-	Programmeur: William Mallette
 	Date: 01-11-2021
 	Description: pipis -> "An invasive species of freshwater clam."
 */
@@ -25,85 +23,85 @@ package scripts.bullets {
 		private var gravityStrength:Number;
 		private var label:Bitmap;
 		
-		// constructor
+		// Constructor
 		public function pipis(v:MovementVector = null, gravity:Number = 0.09) {
-			// Garder en note le montant de pipis qui existe
+			// Track total pipis population
 			pipisCount++;
 			
 			shootable = true;
 			destroyBigShot = false;
 			element = 6;
 			
-			// Initier des valeurs de mouvement
+			// Initiate movement variables
 			if (v) {vector = v;}
 			else {vector = new MovementVector(180, 1.5)}
 			rotSpeed = 10 * Math.random() + 5;
 			gravityStrength = gravity;
 		}
 		
-		// Montrer le signe de "pipis"
+		// Label for "pipis"
 		public function addLabel():void {
-			// Créer le bitmap du signe de "pipis"
+			// Makes the "pipis" bitmap
 			label = new Bitmap(new pipisLabelLAT(0,0));
 			label.x = this.x - 45;
 			label.y = this.y + 25;
 			this.parent.addChild(label);
 		}
 		
-		// Exploser le pipis et libérer les têtes de Spamton
+		// Explodes the pipis and frees the Spamlings
 		public function explode(range:Array = null, amount:int = 15, minSpeed:Number = 2):void {
-			// Jouer un son
+			// Play a sound
 			SoundLibrary.play("bomb", 0.25);
-			// Créer les têtes
+			// Make the heads
 			for (var i:int = 0; i < amount; i++) {
 				var head:pipisHead = new pipisHead(range, minSpeed);
 				head.x = this.x;
 				head.y = this.y;
 				EnemyWave.currentWave.addBullet(head);
 			}
-			// Détruire le pipis
+			// Destroy the pipis
 			destroy();
 		}
 		
-		// À chaque frame,
+		// Every frame
 		public override function update():void {
-			// Réduire bounceDelay jusqu'à 0
+			// Reduce bounceDelay to 0
 			if (bounceDelay > 0) {bounceDelay--;}
 			
-			// La gravité
+			// Enact gravity
 			vector.add(new MovementVector(270, gravityStrength));
-			// Le mouvement
+			// Move the pipis
 			var dim:Point = vector.getDimensions();
 			this.x += dim.x;
 			this.y -= dim.y;
-			// La rotation
+			// Rotation
 			this.rotation -= rotSpeed;
-			// Le signe de "pipis"
+			// Move the label
 			if (label) {
 				label.x = this.x - 45;
 				label.y = this.y + 25;
 			}
 		}
 		
-		// Lorsqu'on détruit le pipis
+		// When the pipis is gone :(
 		public override function cleanup():void {
-			// Détruire le label
+			// Destroy label
 			if (label) {if (label.parent) {label.parent.removeChild(label);}}
 			label = null;
-			// Réduire pipisCount
+			// Reduce pipisCount
 			pipisCount--;
 		}
 		
-		// Lorsqu'on frappe le pipis avec un Shot ou BigShot
+		// Shot
 		public override function onShot(shot):void {
-			// Un BigShot ajoute du TP et détruit le pipis immédiatement
+			// BigShots add TP and instantly destroy pipis
 			if (shot is BigShot) {
 				TPMeter.instance.addTP(3);
 				this.gotoAndStop(5);
 			}
-			// Un Shot avance l'état de dommage du pipis par 1
+			// Regular shots advance damage by 1
 			else {this.gotoAndStop(this.currentFrame + 1);}
-			// Jouer un son
+			// Play a sound
 			SoundLibrary.play("enemydamage", 0.4);
 		}
 	}

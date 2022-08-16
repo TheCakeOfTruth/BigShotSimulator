@@ -1,8 +1,6 @@
 ﻿/*
-	File Name: Bomb.as
-	Programmeur: William Mallette
 	Date: 02-11-2021
-	Description: Une bombe qui se déclenche quand Shot
+	Description: Bomb that explodes when shot
 */
 
 package scripts.bullets {
@@ -15,39 +13,39 @@ package scripts.bullets {
 	public class Bomb extends Bullet {
 		private var beenShot:Boolean = false;
 	
-		// constructor
+		// Constructor
 		public function Bomb() {
 			shootable = true;
 			element = 6;
 		}
 		
-		// Quand on frappe avec un Shot
+		// When you shoot it
 		public override function onShot(shot):void {
 			if (!beenShot) {explode();}
 			beenShot = true;
 		}
 		
-		// Jouer un son et l'animation d'explosion (voir les actions pour Bomb et BombBlast)
+		// Play a sound and an animation (see action code for Bomb and BombBlast objects)
 		private function explode():void {
 			SoundLibrary.play("bombbeep", 0.5, 2);
 			this.play();
 		}
 		
-		// Créer les lignes de BombBlast
+		// Create the lines of BombBlast
 		private function createBeams():void {
-			// Jouer un son et agiter l'écran
+			// Play a sound and shake the screen
 			SoundLibrary.play("bomb", 0.5);
 			Main.screen.shakeScreen(3);
-			// Créer 4 lignes
+			// Create 4 lines
 			for (var i:int = 0; i < 4; i++) {createBeam(i);}
 		}
 		
-		// Créer une ligne de BombBlast
+		// Creates 1 line of BombBlast
 		private function createBeam(dir:int):void {
 			for (var reps:int = 0; reps < 20; reps++) {
-				// Créer un BombBlast
+				// Make a BombBlast
 				var blastSegment:BombBlast = new BombBlast();
-				// Rotation et positionner dépendant de la direction
+				// Rotate and position
 				// L
 				if (dir == 0) {
 					blastSegment.rotation += 90;
@@ -71,7 +69,7 @@ package scripts.bullets {
 					blastSegment.x = this.x;
 					blastSegment.y = this.y + 5 + 24 * reps;
 				}
-				// Ajouter à l'écran
+				// Add to the screen
 				this.parent.addChild(blastSegment);
 				EnemyWave.currentWave.addBullet(blastSegment, false);
 			}

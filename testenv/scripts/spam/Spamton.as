@@ -1,8 +1,6 @@
 /*
-	File Name: Spamton.as
-	Programmeur: William Mallette
 	Date: 14-11-2021
-	Description: L'ennemi
+	Description: The BIG SHOT
 */
 
 package scripts.spam {
@@ -46,18 +44,18 @@ package scripts.spam {
 		private var dialogueChain:int = 0;
 		
 	
-		// constructor
+		// Constructor
 		public function Spamton() {
 			new Wait(1, function() {checktext = Main.dialogue.spamNeoCheck1;});
-			// Les SpamtonParts et les attaques
+			// His parts and his attacks
 			parts = [rarm, rwing, rleg, lleg, body, larm, lwing, head, body];
 			attacks = [FlyingHeads, RollerCoaster, HeartAttack, PipisForYou];
-			// Commencer l'animation
+			// Begin the animation
 			setAnimMode("defaultIdle");
 			head.enableRotation = false;
 			
-			////////// Les options (ACT)
-			// Check, donne des infos
+			////////// ACT options
+			// Check
 			var check:MenuOption = new MenuOption(-311, 19, "Check");
 			check.txt.x -= 6;
 			check.effect = function() {
@@ -71,28 +69,28 @@ package scripts.spam {
 			check.toggleSelection(true);
 			actions.push(check);
 			
-			// X-Slash (endommage Spamton)
+			// X-Slash
 			var xslash:MenuOption = new MenuOption(-87, 19, "X-Slash");
 			xslash.effect = function() {
-				// Dépenser le TP
+				// Reduce TP
 				TPMeter.instance.setTP(TPMeter.instance.tp - (25 / 100) * 250);
 				// Transition
 				Main.setState("actionResult");
 				UI.instance.hideMenu();
 				UI.instance.setText(Main.getText("XSlash"), function() {Main.setState("enemyDialogue");});
-				// Le dommage
+				// Calculate damage
 				var dmg:Number = Math.round(1.25 * (((Kris.instance.calculateAttack() * 150) / 20) - 3 * Main.screen.spamton.defense));
-				// Animation et son
+				// Animation
 				Kris.instance.gotoAndPlay("fight");
 				SoundLibrary.play("xslash", 0.5);
-				// damage
+				// Damage
 				damage(dmg, false, false);
-				// Attendre 1/2 seconde
+				// Wait a little
 				new Wait(30, function() {
-					// Animation et son
+					// Animate again
 					Kris.instance.gotoAndPlay("fight");
 					SoundLibrary.play("xslash", 0.5);
-					// damage
+					// Damage again
 					damage(dmg, false, true, true);
 				});
 			}
@@ -100,7 +98,7 @@ package scripts.spam {
 			xslash.TPCost = 25;
 			actions.push(xslash);
 			
-			// FriedPipis (heal le Player)
+			// FriedPipis
 			var friedpipis:MenuOption = new MenuOption(-311, 49, "FriedPipis");
 			friedpipis.effect = function() {
 				TPMeter.instance.setTP(TPMeter.instance.tp - (32 / 100) * 250);
@@ -109,7 +107,7 @@ package scripts.spam {
 				UI.instance.hideMenu();
 				UI.instance.setText(Main.getText("pipisHeal"), function() {UI.instance.info.icon.gotoAndStop("head"); Main.setState("enemyDialogue");});
 				
-				// Le pipis
+				// pipis
 				var healingpipis:Sprite = new Sprite();
 				var img:Bitmap = new Bitmap(new pipisImg(0,0));
 				healingpipis.addChild(img);
@@ -121,14 +119,12 @@ package scripts.spam {
 				healingpipis.y = Kris.instance.y - 22;
 				Main.screen.addChild(healingpipis);
 				
-				// Bouger le pipis vers Kris
+				// Move towards Kris
 				var moveToKris:Function = function() {
-					// Petit délai
 					new Wait(20, function() {
-						// Bouger
 						new RepeatUntil(function () {healingpipis.x -= 4}, function() {
 							if (healingpipis.x <= Kris.instance.x + 20) {
-								// Animation de disparition du pipis
+								// Disappear
 								new RepeatUntil(function() {
 									healingpipis.scaleX += 0.04;
 									healingpipis.scaleY += 0.04;
@@ -139,27 +135,26 @@ package scripts.spam {
 										return true;
 									}
 								});
-								// Heal le Player
+								// Heal
 								Player.heal(120);
-								// Arrêter de bouger
+								// Stop moving
 								return true;
 							}
 						});
 					});
 				}
-				// Jouer un son
 				SoundLibrary.play("healspell", 0.5);
-				// Animation d'apparition du pipis
+				// Appear
 				new RepeatUntil(function() {
 					healingpipis.scaleX += 0.05;
 					healingpipis.scaleY += 0.05;
 					healingpipis.rotation -= 18;
 				}, function() {if (healingpipis.scaleX >= 1) {
-					// Commencer de bouger
+					// Begin moving
 					moveToKris();
 					return true;
 				}});
-				// Animer Kris
+				// Animate Kris
 				Kris.instance.gotoAndPlay("act");
 			}
 			friedpipis.description = Main.getText("itemHeal") + "\n120 HP";
@@ -168,34 +163,34 @@ package scripts.spam {
 			actions.push(friedpipis);
 		}
 		
-		// Retourner quelle dialogue à utiliser
+		// Handles whcih dialogue to use
 		public function getDialogue():Array {
-			// nextDialogue override le système ici
+			// nextDialogue overrides the advancing text
 			if (nextDialogue == null) {
-				// Les premiers 10 tournes ont la dialogue linéaire, après ça utiliser la dialogue random
-				// bluelightMode répète le même chose si qu'on ne choisi pas l'option d'ACT
+				// First 10 turns have linear progression, followed by random stuff
+				// bluelightMode repeats the same thing unless you ACT
 				dialogueChain++;
 				if (bluelightMode) {return XMLToDialogue(Main.dialogue.NEOFireworks2);}
 				else if (dialogueChain <= 10) {return XMLToDialogue(Main.dialogue["NEODialogue" + dialogueChain]);}
 				else {return XMLToDialogue(Main.dialogue["NEODRandom" + RandomRange(1, 6, 0)]);}
 			}
 			else {
-				// Effacer nextDialogue pour le prochain turn
+				// Set nextDialogue to null for the next turn
 				var txt:Array = nextDialogue;
 				nextDialogue = null;
 				return txt;
 			}
 		}
 		
-		// Retourner une attaque
+		// Returns an attack to use
 		public function getAttack():EnemyWave {
 			attackID = (attackID + 1) % attacks.length;
 			return new attacks[attackID]();
 		}
 		
-		// Endommager
+		// Damage
 		public function damage(n:int, doSound:Boolean = true, resetAnim:Boolean = true, mirrorSlash:Boolean = false):void {
-			// L'effet de slash
+			// Slash effect
 			var slash:DamageSlash = new DamageSlash();
 			slash.x = this.x + 20;
 			slash.y = this.y - 100;
@@ -207,21 +202,20 @@ package scripts.spam {
 			}
 			Main.screen.addChild(slash);
 			
-			// Jouer un son, montrer et effectuer le dommage
+			// Play a sound, show and apply damage
 			new Wait(15, function() {
-				// Pauser l'animation, jouer une animation rapide d'endommagement
+				// Pause the animation and show a hurt one
 				head.gotoAndStop(1);
 				head.rotation = -15;
 				
 				forAllParts(function() {
 					part.enableRotation = false;
-					var signs:Array = [-1, 1];
 					if (part != body) {
-						part.rotation =  signs[Math.floor(Math.random() * 2)] * 20 * Math.random();
+						part.rotation =  part.rotation + RandomRange(-45, 45);
 					}
 				});
 				
-				// Imiter la défense augmenté pendant bluelight mode
+				// Imitate bluelight defense
 				if (bluelightMode) {n = RandomRange(5, 11, 0);}
 				
 				if (doSound) {SoundLibrary.play("enemydamage", 0.5);}
@@ -229,14 +223,14 @@ package scripts.spam {
 				shake(); 
 				UI.instance.info.icon.gotoAndStop("head");
 				hp -= n;
-				// Ne pas dépasser 278.54 HP
+				// Don't go below 278.54 HP
 				hp = Math.max(278.54, hp);
 				
-				// Lorsqu'on dépasse 15% de maxhp, commence le "bluelight specil"
+				// Once below 15% HP, start the bluelight specil
 				if (hp < 0.15 * maxhp && !bluelightMode && resetAnim) {startBluelight();}
-				// Normalement,
+				// Otherwise,
 				else {
-					// Recommencer l'animation
+					// Restart animation
 					if (resetAnim) {
 						new Wait(25, function() {
 							Kris.instance.gotoAndPlay("idle");
@@ -250,7 +244,7 @@ package scripts.spam {
 			});
 		}
 		
-		// Commencer bluelightMode, le fin du jeu
+		// Start bluelightMode
 		private function startBluelight():void {
 			// Setup
 			bluelightMode = true;
@@ -258,18 +252,17 @@ package scripts.spam {
 			UI.instance.setText("");
 			Main.setState("none");
 			Main.bgm.fadeOut();
-			
-			// Attendre une seconde
+
 			new Wait(60, function() {
-				// Commencer la dialogue.
+				// Dialogue
 				var textbubble:DialogueBubble = new DialogueBubble(Main.dialogue.NEOLowHP, "voice_sneo", function() {
 					new Wait(2, function() {
-						// Lorsque la dialogue termine, jouer l'animation et indiquer à l'utilisateur que les stats de Spamton ont changés
+						// When it ends, apply the effect
 						SoundLibrary.play("specil");
 						forAllParts(function() {part.rotateToSmart(0);}, false);
 						Main.setState("actionResult");
 						UI.instance.setText(Main.dialogue.NEOBluelight, function() {
-							// Lorsque l'utilisateur avance le texte, recommencer l'animation, jouer la musique, et avance à enemyDialogue
+							// We're in the end stages, now
 							nextDialogue = XMLToDialogue(Main.dialogue.NEOFireworks);
 							forAllParts(function() {part.enableRotation = true;});
 							head.play();
@@ -283,23 +276,21 @@ package scripts.spam {
 				Main.screen.addChild(textbubble);
 			});
 			
-			// Les vieux options ACT disparaissent, remplacés par ceci
+			// Old acts replaced by this
 			actions = [];
 			var resultText:XMLList = Main.dialogue.callForHelp;
 			var help:MenuOption = new MenuOption(-311, 19, "");
-			// Lorsqu'on l'utilise,
+			// On use,
 			help.effect = function() {
-				// Avancer helpCount
+				// Advance helpCount
 				helpCount++;
-				// Dépendant du helpCount, changer l'icone et la dernière fois, la dialogue aussi
+				// Change icon depending on helpCount
 				if (helpCount == 2) {help.icon.bitmapData = new SusieIcon(0,0);}
 				else if (helpCount == 4) {help.icon.bitmapData = new NoelleIcon(0,0);}
 				else if	(helpCount == 5) {resultText = Main.dialogue.callForHer;}
-				// Avancer comme n'importe quel autre option ACT
 				Main.setState("actionResult");
 				UI.instance.setText(XMLToDialogue(resultText), function() {
 					UI.instance.info.icon.gotoAndStop("head");
-					// Utilise la dialogue du branche NEORant
 					nextDialogue = XMLToDialogue(Main.dialogue["NEORant" + helpCount]);
 					Main.setState("enemyDialogue");
 				});
@@ -307,32 +298,31 @@ package scripts.spam {
 				UI.instance.info.icon.gotoAndStop("act");
 				Kris.instance.gotoAndPlay("act");
 			}
-			// Créer l'icone et valider le MenuOption
+			// Create the icon of the MenuOption
 			help.createIcon(new RalseiIcon(0,0));
 			help.toggleSelection(true);
 			actions.push(help);
 		}
 		
-		// Fonction qui agite Spamton
+		// Shake Spamton
 		public function shake(intensity:Number = 2) {
-			// Générer deux nombres aléatoires avec la signe choisi aléatoirement
+			// Two random numbers
 			var val_x:Number = RandomRange(-intensity, intensity);
 			var val_y:Number = RandomRange(-intensity, intensity);
-			// Déplacer Spamton par les valeurs générés
+			// Displace by those numberse
 			Main.screen.spamton.x += val_x;
 			Main.screen.spamton.y += val_y;
-			// Après 5 frames, reset le déplacement
+			// Wait a bit and reset
 			new Wait(5, function():void {
 				Main.screen.spamton.x -= val_x;
 				Main.screen.spamton.y -= val_y;
 			});
 		}
 		
-		// Changer l'animation
+		// Change the animation
 		public function setAnimMode(mode:String):void {
 			animMode = mode;
 			if (mode == "defaultIdle") {
-				// Chaque SpamtonPart sauf la tête change de rotation périodiquement
 				rarm.setRotValues(10, -20, 0.07);
 				rwing.setRotValues(10, -20, 0.09);
 				rleg.setRotValues(10, -10, 0.05);
@@ -345,33 +335,25 @@ package scripts.spam {
 				head.gotoAndPlay("default_HeadSwitch");
 			}
 			else if (mode == "angerShake") {
-				// Arrêter l'animation de la tête, et la rotation des autres SpamtonParts
 				head.gotoAndStop(1);
 				forAllParts(function() {part.enableRotation = false});
-				// Périodiquement, changer la rotation de chaque SpamtonPart (sauf la tête) aléatoirement
 				var changeRotTimer:int = 0;
 				new RepeatUntil(function() {
 					changeRotTimer = (changeRotTimer + 1) % 30;
 					if (changeRotTimer == 0) {
 						forAllParts(function() {part.rotation = RandomRange(-30, 30);});
-						// Changer l'image de la tête
 						if (head.currentFrame == 1) {head.rotation = 0; head.gotoAndStop(61);}
 						else {head.rotation = -20; head.gotoAndStop(1);}
 					}
-					// Agiter chaque SpamtonPart (sauf la tête)
 					forAllParts(function() {part.shake(1);});
 				}, function() {if (animMode != "angerShake") {return true;}});
 			}
 			else if (mode == "laughing") {
-				// Setup
 				head.gotoAndStop(1);
 				forAllParts(function() {part.enableRotation = false;});
-				// Jouer le son de rire
 				var laughsound:BetterSoundChannel = SoundLibrary.play("laugh");
 				new RepeatUntil(function() {
-					// Agiter les SpamtonParts en même temps
 					forAllParts(function() {part.shake(0.75);});
-					// Animer la tête selon le son
 					if (laughsound.position < 1000) {head.minRotation = -50;}
 					else if (laughsound.position > 1000 && laughsound.position < 1500) {head.minRotation = 20; head.gotoAndStop(31);}
 					else if (laughsound.position > 1500 && laughsound.position < 2000) {head.minRotation = -10; head.gotoAndStop(61);}
@@ -381,10 +363,10 @@ package scripts.spam {
 			}
 		}
 		
-		// Itérer pour chaque SpamtonPart
+		// Iterate a function for all parts
 		public function forAllParts(fToDo:Function, excludeHead:Boolean = true):void {
 			for each (part in parts) {
-				// Exclure la tête si spécifié
+				// Exclude head if specified
 				if (excludeHead == true) {
 					if (part != head) {fToDo.call();}
 				}
@@ -395,13 +377,13 @@ package scripts.spam {
 			part = null;
 		}
 		
-		// Détruire l'objet
+		// Destroy the object
 		public function destroy():void {
-			// Effectuer les méthodes destroy() pour chaque SpamtonPart
+			// Destroy all parts
 			forAllParts(function() {part.destroy();}, false);
 			part = null;
 			parts = [];
-			// Enlever l'objet de l'écran
+			// Remove from the screen
 			this.parent.removeChild(this);
 		}
 	}

@@ -1,8 +1,6 @@
 ﻿/*
-	File Name: SoundLibrary.as
-	Programmeur: William Mallette
 	Date: 04-12-2021
-	Description: Les sons chargés par 'new', même s'ils sont déjà chargés, occupent du mémoire qui ne peut pas être récupérer. Alors, j'instancie chaque son ici au commencement, et utilise seulement SoundLibrary.play() dans le futur.
+	Description: "new" sounds increase memory usage which can't be retrieved. So, load one instance of each sound at the beginning, and make a new sound system to handle them.
 */
 
 package scripts {
@@ -13,7 +11,7 @@ package scripts {
 	public class SoundLibrary {
 		public static var dict:Dictionary = new Dictionary();
 		
-		// constructor initie les sons, faut seulement exécuter une fois
+		// Constructor initiates the sounds, only use once
 		public function SoundLibrary() {
 			dict["mus_bigshot"] = new MusBigShot();
 			dict["mus_defeat"] = new MusGameOver();
@@ -49,9 +47,9 @@ package scripts {
 			dict["iceshock"] = new IceShockSound();
 		}
 		
-		// Jouer un son
+		// Play a sound
 		public static function play(sound:String, volume:Number = 0.5, loops:int = 0):BetterSoundChannel {
-			// Jouer le son
+			// Play the sound
 			var newsnd:BetterSoundChannel = new BetterSoundChannel(dict[sound], loops, new SoundTransform(volume));
 			return newsnd;
 		}

@@ -1,8 +1,6 @@
 /*
-	File Name: DialogueBubble.as
-	Programmeur: William Mallette
 	Date: 23-11-2021
-	Description: La bulle de dialogue de l'ennemi
+	Description: Enemy text bubbles
 */
 
 package scripts {
@@ -32,9 +30,9 @@ package scripts {
 		private var rectVertical:Pixel;
 		private var eventKey:String;
 		
-		// constructor
+		// Constructor
 		public function DialogueBubble(dialogue, voice:String = "", endfunc:Function = null) {
-			// Stocker les variables
+			// Stock variables
 			if (dialogue is String) {bubbletext.push(dialogue);}
 			else if (dialogue is XMLList) {bubbletext = XMLToDialogue(dialogue);}
 			else {bubbletext = dialogue;}
@@ -42,29 +40,29 @@ package scripts {
 			else {storedfunc = endfunc;}
 			textvoice = voice;
 			
-			// Changer le textformat
+			// Change TextFormat
 			textformat.letterSpacing = 1;
 			textformat.leading = 4;
 			
-			// Créer le queue du bubble et positionner à (0, 0) car tout autres objets sont positionnés relatif à ceci
+			// Create the tail and position it to (0,0)
 			arrow = new Bitmap();
 			arrow.bitmapData = new BubbleArrow(0,0);
 			arrow.x = -arrow.width + 1;
 			arrow.y = -8;
 			addChild(arrow);
 			
-			// Créer le bubble
+			// Create the bubble
 			drawBubble();
 			
-			// Les events, certains sont tirés de TypeText car il faut les exécuter à chaque transition
+			// Reused from TypeText
 			eventKey = "DialogueBubble-" + String(Math.random());
 			Input.addEvent(90, tryAdvance, eventKey);
 			addEventListener(Event.ENTER_FRAME, update, false, 0, true);
 		}
 		
-		// Créer le bubble
+		// Create bubble
 		private function drawBubble():void {
-			// S'il faut, détruire les objets qui étaient déjà là
+			// Destroy bubble components that may have already existed
 			if (isFirstPage == false) {
 				txt.endText();
 				this.removeChild(txt);
@@ -72,18 +70,18 @@ package scripts {
 				this.removeChild(rectVertical);
 			}
 			
-			// Le texte
+			// The text
 			txt = new BubbleText();
 			txt.textfield.defaultTextFormat = textformat;
 			txt.textfield.autoSize = TextFieldAutoSize.LEFT;
-			// Remplir pour obtenir les dimensions
+			// Fill text to get dimensions for the bubble
 			txt.textfield.text = bubbletext[0];
 			
-			// Obtenir les dimensions
+			// Get dimensions for the bubble
 			var fullwidth:Number = Math.round(txt.textfield.width) + 35;
 			var fullheight:Number = Math.round(txt.textfield.height) + 16;
 			
-			// Deux rectangles
+			// Two rectangles
 			rectHorizontal = new Pixel();
 			rectHorizontal.width = fullwidth - 18;
 			rectHorizontal.height = fullheight - 10;
@@ -98,22 +96,22 @@ package scripts {
 			rectVertical.y = Math.round(arrow.y - Math.round(rectVertical.height / 2) + 9);
 			addChild(rectVertical);
 			
-			// Positionner le texte
+			// Position the text
 			txt.x = rectHorizontal.x + 8;
 			txt.y = rectHorizontal.y + 4;
 			addChild(txt);
 			
-			// Commencer le texte
+			// Start the text
 			txt.startText(bubbletext[0], textvoice, "none");
-			// Préparer pour la prochaine ligne de texte
+			// Prepare for the next line of text
 			bubbletext.splice(0, 1);
 			isFirstPage = false;
 		}
 		
-		// À chaque frame,
+		// Every frame
 		private function update(e:Event):void {
 			// C -> skipText
-			// X fonctionne encore en TypeText
+			// X does the same as TypeText
 			if (Input.getKey(67) == true) {skipText();}
 			// whileTyping
 			if (whileTyping is Function && txt != null) {
@@ -123,7 +121,7 @@ package scripts {
 			}
 		}
 		
-		// Tiré de TypeText
+		// Pulled from TypeText
 		private function skipText():void {
 			if (!queuedSkip) {
 				queuedSkip = true;
@@ -132,7 +130,7 @@ package scripts {
 			}
 		}
 		
-		// Similaire à celle de TypeText, mais redraw le bubble aussi
+		// Similar to TypeText, but redraws the bubble too
 		private function tryAdvance():void {
 			if (txt.textfield.text.length == txt.fulltext.length) {
 				if (bubbletext.length > 0) {
@@ -145,7 +143,7 @@ package scripts {
 			}
 		}
 		
-		// Détruire le bubble
+		// Destroy the bubble
 		private function endText():void {
 			ended = true;
 			txt.endText();

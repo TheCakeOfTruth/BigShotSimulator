@@ -1,8 +1,6 @@
 /*
-	File Name: PipisForYou.as
-	Programmeur: William Mallette
 	Date: 16-12-2021
-	Description: L'attaque du canon de pipis
+	Description: Firing pipis from a cannon
 */
 
 package scripts.attacks {
@@ -28,22 +26,22 @@ package scripts.attacks {
 		private var pipisFloor:Pixel;
 		private var spamTwo:Spamton;
 		
-		// constructor
+		// Constructor
 		public function PipisForYou() {
-			// waveTimer infini jusqu'à temps que la dialogue est terminée
+			// Keep waveTimer infinite until Spamton stops talking
 			waveTimer = int.MAX_VALUE;
 			arenaConfig = {x: 246, y: 171, width: 150, height: 150};
 			
-			// Garder la position initial de Spamton
+			// Hold onto Spamton's initial position
 			initialSpamX = Main.screen.spamton.x;
 			initialSpamY = Main.screen.spamton.y;
 			
-			// Bouger Spamton en haut
+			// Move spamton upwards
 			new RepeatUntil(function() {
 				Main.screen.spamton.y -= 5;
 			}, function() {
 				if (Main.screen.spamton.y < 200) {
-					// Jouer un son, animer le bras de Spamton, arrêter ce RepeatUntil
+					// Play a sound, animate Spamton, and end the RepeatUntil
 					SoundLibrary.play("phone", 0.4);
 					Main.screen.spamton.larm.rotateTo(150);
 					new Wait(10, function() {Main.screen.spamton.larm.gotoAndStop("phone1");});
@@ -53,25 +51,23 @@ package scripts.attacks {
 			})
 		}
 		
-		// Commencer le dialogue introductoire
+		// Start intro dialogue
 		private function startDialogue():void {
-			// Arrêter l'animation du tête de Spamton
+			// Stop his usual head animation
 			Main.screen.spamton.head.gotoAndStop("default_headswitch");
 			
-			// Créer un DialogueBubble qui effectue startAttack quand il est fini
+			// Create a DialogueBubble which runs startAttack() when it ends
 			var bubble:DialogueBubble = new DialogueBubble(Main.dialogue.spamNeoPhone1, "voice_sneo", startAttack);
 			bubble.x = 460;
 			bubble.y = 100;
-			// Pendant que le texte du DialogueBubble tape, 
+			// While the dialogue is typing, animate Spamton's head
 			bubble.whileTyping = function() {
 				if (bubble.bubbletext.length != 0) {
-					// Animer le tête
 					Main.screen.spamton.head.rotation = 12 * Math.sin(timer / 60);
 				}
 			}
-			// Lorsqu'on avance le dialogue,
+			// When we move the dialogue ahead, if we're at the last line, move the bubble and have Spamton point the phone at you
 			bubble.onAdvance = function() {
-				// Si on est au dernier texte du bulle, changer l'animation et bouger la bulle et le bras
 				if (bubble.bubbletext.length == 0) {
 					Main.screen.spamton.head.gotoAndStop(31);
 					Main.screen.spamton.head.rotation = -16;
@@ -84,16 +80,16 @@ package scripts.attacks {
 			addChild(bubble);
 		}
 		
-		// Commencer l'attaque
+		// Start the attack
 		private function startAttack():void {
-			// Changer waveTimer
-			waveTimer = 26000;
-			// Bouger Spamton
+			// Change waveTimer
+			waveTimer = 18000;
+			// Move Spamton
 			new RepeatUntil(function() {
 				Main.screen.spamton.x += 7;
 			}, function() {
 				if (Main.screen.spamton.x > 700) {
-					// Reset l'animation de Spamton lorsqu'il est hors de l'écran
+					// Reset Spamton's animation once he's offscreen
 					Main.screen.spamton.head.rotation = 0;
 					Main.screen.spamton.setAnimMode("defaultIdle");
 					Main.screen.spamton.larm.gotoAndStop("normal");
@@ -103,9 +99,8 @@ package scripts.attacks {
 				}
 			});
 			
-			// Après un délai
 			new Wait(20, function() {
-				// Créer le premier pipis
+				// The first pipis
 				var firstPipis:pipis = new pipis(null);
 				var location:Point = Main.screen.spamton.localToGlobal(new Point(Main.screen.spamton.larm.x - Main.screen.spamton.larm.height, Main.screen.spamton.larm.y));
 				firstPipis.x = location.x;
@@ -115,7 +110,7 @@ package scripts.attacks {
 				firstPipis.addLabel();
 				pipisArray.push(firstPipis);
 				
-				// Le plancher
+				// The floor
 				pipisFloor = new Pixel();
 				pipisFloor.width = 217;
 				pipisFloor.height = 2;
@@ -129,9 +124,8 @@ package scripts.attacks {
 				new RepeatUntil(function() {pipisFloor.alpha += 0.05;}, function() {if (pipisFloor.alpha >= 1) {return true;}});
 			});
 			
-			// Un autre délai, un peu plus longue
 			new Wait(40, function() {
-				// Créer le deuxième Spamton
+				// Spamton clone for the cannon firing
 				spamTwo = new Spamton();
 				spamTwo.x = 651;
 				spamTwo.y = 344;
@@ -152,18 +146,18 @@ package scripts.attacks {
 			});
 		}
 		
-		// À chaque frame
+		// Every frame
 		public override function update():void {
-			// Si le plancher existe, itérer pour les pipis pour vérifier la collision
+			// If the floor exists, check for collision with every pipis
 			if (pipisFloor is Pixel) {
 				for each (var ipipis:pipis in pipisArray) {
-					// Si on est en collision avec le plancher, refléter la composante verticale du vecteur et avoir un délai avant de rebondir encore
+					// If the pipis collides, make it bounce (invert its vector's vertical component)
 					if (pipisFloor.hitTestObject(ipipis) && ipipis.bounceDelay == 0) {
 						var dim:Point = ipipis.vector.getDimensions();
 						ipipis.vector = MovementVector.getVectorFromDimensions(dim.x, Math.min(4, -dim.y));
 						ipipis.bounceDelay = 10;
 					}
-					// Si on est en collision avec l'aréna, exploser
+					// When the pipis collides with the arena, have it explode
 					if (arena.hitTestObject(ipipis) && ipipis.exists) {
 						var playerAngle:Number = MovementVector.getVectorFromDimensions(player.x - ipipis.x, ipipis.y - player.y).getAngle();
 						ipipis.explode([playerAngle - 20, playerAngle + 20], 10, 7);
@@ -172,9 +166,9 @@ package scripts.attacks {
 				ipipis = null;
 			}
 			
-			// Si le deuxième Spamton existe,
+			// While the second Spamton exists,
 			if (spamTwo is Spamton) {
-				// Animer le corps et (si nécessaire) le bras
+				// Animate his flight and arm
 				spamTwo.y = 10 * Math.sin(timer / 20) + 344;
 				if (aimRandomizer) {
 					spamTwo.larm.rotation = 3 * Math.sin(timer / 2) + targetRot;
@@ -182,27 +176,26 @@ package scripts.attacks {
 			}
 		}
 		
-		// Sélectionner une rotation aléatoire pour le bras
+		// Pick a random rotation for the arm
 		private function changeTarget():void {
-			// Rotation aléatoire
 			var newRot:Number = 45 * Math.random() + 120;
-			// Bouger le bras vers cette rotation
+			// Move his arm towards that rotation
 			if (newRot > spamTwo.larm.rotation) {spamTwo.larm.rotateTo(newRot, true, 15);}
 			else {spamTwo.larm.rotateTo(newRot, false, 15);}
-			// Stocker la rotation sélectionnée
+			// Store that target rotation
 			targetRot = newRot;
 			
-			// Après que le bras est en position, commence à charger un pipis
+			// When the arm is on target, start the process of firing a pipis
 			new Wait(15, function() {
 				new RepeatUntil(function() {if (waveTimer > 0) {spamTwo.larm.scaleX += 0.025;}}, function() {
 					if (waveTimer > 0) {
 						if (spamTwo.larm.scaleX >= 1.4) {
-							// Changer l'image du bras
+							// Change the arm sprite
 							spamTwo.larm.scaleX = 1;
 							spamTwo.larm.gotoAndStop("cannon2");
-							// Agiter le rotation du bras
+							// Randomize the rotation a little
 							aimRandomizer = true;
-							// Lancer le pipis
+							// Fire!
 							new Wait(30, firepipis);
 							return true;
 						}
@@ -211,47 +204,46 @@ package scripts.attacks {
 			});
 		}
 		
-		// Lancer un pipis
+		// Fire a pipis
 		private function firepipis():void {
 			if (this.parent && pipis.pipisCount < 3) {
-				// L'inverse de l'animation du chargement
+				// Reset his arm
 				spamTwo.larm.gotoAndStop("cannon1");
 				spamTwo.larm.scaleX = 1.4;
 				new RepeatUntil(function() {spamTwo.larm.scaleX -= 0.05;}, function() {if (spamTwo.larm.scaleX <= 1) {return true;}});
-				// Arrêter l'agitement
+				// Stop the shaking
 				aimRandomizer = false;
 				
-				// Calculer le vecteur du pipis
+				// Calculate the vector for the pipis
 				var pipisVector:MovementVector = new MovementVector(-spamTwo.larm.rotation - 90, (((spamTwo.larm.rotation) % 360 - 110) / 8) + 3 * Math.random() + 1);
-				// Limiter les composantes du vecteur pour éviter trop de difficulté
+				// Limit the magnitude of the vector to prevent too much eccentricity
 				pipisVector = MovementVector.getVectorFromDimensions(Math.max(-1.25, pipisVector.getDimensions().x), Math.min(5, pipisVector.getDimensions().y));
-				// Créer le pipis
+				// Create the pipis
 				var newpipis:pipis = new pipis(pipisVector);
-				// Positionner le pipis
+				// Position the pipis
 				var pipisPoint:Point = new MovementVector(-spamTwo.larm.rotation - 90, 46).getDimensions();
 				var armPoint:Point = spamTwo.localToGlobal(new Point(spamTwo.larm.x, spamTwo.larm.y));
 				newpipis.x = armPoint.x + pipisPoint.x;
 				newpipis.y = armPoint.y - pipisPoint.y;
 				newpipis.rotation = spamTwo.larm.rotation;
-				// Finaliser le création du pipis
+				// Finalise its creation
 				addBullet(newpipis);
 				pipisArray.push(newpipis);
 				
-				// Après un délai, changeTarget() encore
+				// Wait a bit and start aiming again
 				new Wait(15, changeTarget);
 			}
-			// S'il y a 3 pipis sur l'écran, attendre un moment avant d'essayer de lancer un pipis encore
-			// (Un pipis sera crée seulement s'il y a moins que 3 sur l'écran)
+			// If there are 3 pipis on the screen, wait until one is gone before firing again
 			else if (pipis.pipisCount >= 3) {
 				new Wait(3, firepipis);
 			}
 		}
 		
-		// Lorsque l'attaque est fini
+		// Once the attack is finished,
 		public override function cleanup(transition:Boolean):void {
 			pipisArray = null;
 			pipisFloor = null;
-			// Bouger le deuxième Spamton hors de l'écran et détrui-lui
+			// Move the second Spamton offscreen and destroy him
 			if (spamTwo && transition) {
 				new RepeatUntil(function() {spamTwo.x += 2.5;}, function() {
 					if (spamTwo.x > 700) {
@@ -265,7 +257,7 @@ package scripts.attacks {
 				spamTwo.destroy();
 				spamTwo = null;
 			}
-			// Bouger le vrai Spamton à sa position initiale
+			// Reposition the True Spamton
 			new RepeatUntil(function() {Main.screen.spamton.x -= 7;}, function() {if (Main.screen.spamton.x <= initialSpamX) {return true;}});
 		}
 	}

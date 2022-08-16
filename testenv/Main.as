@@ -1,8 +1,6 @@
 ﻿/*  
-	Nom du fichier: Main.as
-	Programmeur: William Mallette
 	Date: 21/10/2021
-	Description: Le classe de document
+	Description: The class document
 */
 
 package {
@@ -51,12 +49,13 @@ package {
 		public var spamton:Spamton;
 		public var kris:Kris;
 		
-		// Choses de débogage (changez showDebugInfo à true pour voir l'info)
-		private var showDebugInfo:Boolean = false;
+		// Debug tools
+		private var skipmenu:Boolean = true;
+		private var showDebugInfo:Boolean = true;
 		private var _time:Number;
 		private var frames:int = 0;
 		
-		// Variables pour les menus
+		// Menu variables
 		private var titleFormat:TextFormat;
 		private var itemboxes:Array;
 		private var selectedSword:Object;
@@ -66,48 +65,50 @@ package {
 		private var presetFile:FileReference;
 		
 		public function Main() {
-			// Un référence à l'écran
+			// Keep a reference to the screen
 			screen = this;
 			
-			// Établir titleFormat
+			// Set up titleFormat
 			titleFormat = new TextFormat();
 			titleFormat.align = TextFormatAlign.CENTER;
 			titleFormat.letterSpacing = 4;
 			
-			// Initier le localization (dialogue)
+			// Initiate localization
 			new LocalizationHandler();
-			dialogue = LocalizationHandler.languages["french"];
-			// Initier l'input
+			dialogue = LocalizationHandler.languages["english"];
+			// Initiate inputs
 			new Input();
-			// Initier les items (et les sélections par défaut)
+			// Initiate items and equip default inventory
 			new Item();
 			selectedSword = {index: 0, item: Item.krisweapons["BounceBlade"]};
 			selectedArmorA = {index: 0, item: Item.armors["AmberCard"]};
 			selectedArmorB = {index: 0, item: Item.armors["AmberCard"]};
 			for (var i:int = 0; i < 12; i++) {selectedItems.push({index: 2, item: Item.items["CDBagel"]});}
-			// Initier les sons
+			// Initiate the sound library
 			new SoundLibrary();
-			// Initier le GlobalListener
+			// Initiate the GlobalListener
 			new GlobalListener();
 			
-			// J'ai découvert qu'il y avait un problème avec les sons, qui causait beaucoup de lag
-			// Cependant, ce problème n'arrivait pas lorsqu'il y avait déjà un son qui jouait.
-			// Donc il faut toujours avoir un son qui joue
-			bgm = SoundLibrary.play("mus_menu", 0.3, int.MAX_VALUE);
-			
-			// Initier le mainMenu
+			// Initiate the main menu
 			setupMenu();
 			
-			// Choses de débogage
+			// I discovered an issue with sounds, which caused lots of lag
+			// The problem was that Flash's sound handler was unloading after there was no longer a sound playing
+			// Causing it to load back in every time a sound came back (causing the lag)
+			// To prevent this, a sound has to be playing at all times.
+			bgm = SoundLibrary.play("mus_menu", 0.3, int.MAX_VALUE);
+			
+			// Establish some variables used for debugging
 			_time = getTimer();
 			addEventListener(Event.ENTER_FRAME, update);
 		}
 		
-		// À chaque frame,
+		// Run each frame
 		private function update(e:Event) {
+			// FPS/Memory display
 			if (!isMenu) {
 				if (showDebugInfo) {
-					// J'ai utilisé ce site pour faire le compteur d'FPS: https://bit.ly/34QWpiO
+					// Got this FPS counter from: https://bit.ly/34QWpiO
 					var newtime:Number = (getTimer() - _time) / 1000;
 					frames++;
 					if (newtime > 1) {
@@ -120,28 +121,28 @@ package {
 			}
 		}
 		
-		// Fonction qui agite l'écran
+		// Shakes the screen
 		public function shakeScreen(intensity:Number = 2) {
-			// Générer deux nombres aléatoires entre -intensity et intensity
+			// Generates two random numbers between -intensity and intensity
 			var val_x:Number = RandomRange(-intensity, intensity);
 			var val_y:Number = RandomRange(-intensity, intensity);
-			// Déplacer l'écran par les valeurs générés
+			// Displace the screen by those values
 			screen.x += val_x;
 			screen.y += val_y;
-			// Après 5 frames, reset le déplacement
+			// 5 frames later, move the screen back
 			new Wait(5, function():void {
 				screen.x -= val_x;
 				screen.y -= val_y;
 			});
 		}
 		
-		// Changer l'état du jeu (gère les contrôles, les objets, etc.)
+		// Change the game state
 		public static function setState(newstate:String):void {
-			// Changer les variables
+			// Switch variables
 			oldstate = gameState;
 			gameState = newstate;
 			
-			// oldstate (terminer l'état courant)
+			// oldstate (handles ending the current state)
 			if (oldstate == "selectingButton") {UI.instance.exitSelectingButton();}
 			else if (oldstate == "enemySelect") {UI.instance.exitEnemySelect();}
 			else if (oldstate == "attacking") {UI.instance.exitAttacking();}
@@ -149,7 +150,7 @@ package {
 			else if (oldstate == "itemSelect") {UI.instance.exitItemSelect();}
 			else if (oldstate == "itemTarget") {UI.instance.exitItemTarget();}
 			
-			// newstate (commencer une nouvelle état)
+			// newstate (starts the new state)
 			if (newstate == "selectingButton") {UI.instance.enterSelectingButton();}
 			else if (newstate == "enemySelect") {UI.instance.enterEnemySelect();}
 			else if (newstate == "attacking") {UI.instance.enterAttacking();}
@@ -157,22 +158,22 @@ package {
 			else if (newstate == "itemSelect") {UI.instance.enterItemSelect();}
 			else if (newstate == "itemTarget") {UI.instance.enterItemTarget();}
 			else if (newstate == "enemyDialogue") {
-				// Reset l'animation de Kris si nécessaire
+				// Reset Kris' animation if necessary
 				if (!Kris.instance.isDefending) {Kris.instance.gotoAndPlay("idle");}
-				// Cacher le texte de l'UI
+				// Hide UI text
 				UI.instance.setText("");
-				// Créer le DialogueBubble
+				// Create a dialogue bubble
 				var textbubble:DialogueBubble = new DialogueBubble(screen.spamton.getDialogue(), "voice_sneo", function() {
-					// Des effets qui dépendant de quelle texte vient de terminer (celles-ci sont plutôt au fin du jeu)
+					// Handle effects based on which text is playing
 					if (screen.spamton.helpCount == 4) {screen.spamton.setAnimMode("defaultIdle");}
 					else if (screen.spamton.helpCount == 5) {
-						// Arrêter la musique et commencer à rire
+						// Stop the music and start the laugh
 						bgm.stop();
 						screen.spamton.setAnimMode("laughing"); 
-						// Après le rire, arrêter l'animation de Spamton
+						// After the laugh, stop animating Spamton
 						new Wait(180, function() {
 							screen.spamton.setAnimMode("none"); 
-							// Attendre un peu et faire la dialogue finale
+							// Wait a little then do the final dialogue
 							new Wait(45, function() {
 								screen.spamton.nextDialogue = XMLToDialogue(dialogue.NEORant6); 
 								screen.spamton.helpCount++; 
@@ -180,20 +181,20 @@ package {
 							});
 						});
 					}
-					// Après la dialogue finale
+					// After the final text
 					else if (screen.spamton.helpCount == 6) {
-						// Un écran noir
+						// Black screen
 						SoundLibrary.play("switch");
 						var blackscreen:Pixel = new Pixel();
 						blackscreen.width = 640;
 						blackscreen.height = 480;
 						blackscreen.transform.colorTransform = new ColorTransform(0, 0, 0);
 						Main.screen.addChild(blackscreen);
-						// Attendre un moment
+						// Wait a moment
 						new Wait(60, function() {
-							// Jouer un son
+							// Play a sound
 							SoundLibrary.play("iceshock");
-							// Montrer le dommage et jouer un son (3 fois, avec un petit délai entre chacun)
+							// Show the damage
 							new Wait(30, function() {
 								new DamageNumber(RandomRange(690, 710, 0), screen.spamton, "yellow", -40);
 								SoundLibrary.play("enemydamage");
@@ -203,35 +204,35 @@ package {
 									new Wait(5, function() {
 										new DamageNumber(RandomRange(690, 710, 0), screen.spamton, "yellow", -40);
 										SoundLibrary.play("enemydamage");
-										// Attendre un moment, fermer le jeu
+										// Wait a moment and end the game
 										new Wait(240, function() {fscommand("quit");;});
 									});
 								});
 							});
 						});
 					}
-					// La plupart du temps, commence enemyAttack
+					// Most of the time, start enemyAttack
 					if (screen.spamton.helpCount < 5) {new Wait(2, function() {Main.setState("enemyAttack");});}
 				});
-				// Commencer un animation dépendant du texte
+				// Start an animation depending on the text
 				if (screen.spamton.helpCount == 4) {screen.spamton.setAnimMode("angerShake");}
-				// Positionner et montrer le DialogueBubble
+				// Position and show the dialogue bubble
 				textbubble.x = 460;
 				textbubble.y = 170;
 				Main.screen.addChild(textbubble);
-				// Changer le "flavor text" de l'UI aléatoirement
+				// Randomly select flavor text
 				if (!screen.spamton.bluelightMode) {UI.instance.displayText = getText("NEOFRandom" + RandomRange(1, 10, 0));}
 				else {UI.instance.displayText = getText("NEOFBlue" + RandomRange(1, 2, 0));}
 			}
 			else if (newstate == "enemyAttack") {
-				// Commencer l'attaque de l'ennemi
+				// Start the attack
 				screen.addChild(screen.spamton.getAttack());
 			}
 		}
 		
-		// Le Game Over
+		// Game Over
 		public static function gameOver():void {
-			// Arrêter tout
+			// Stop everything
 			GlobalListener.clearEvents();
 			bgm.stop();
 			screen.spamton.head.stop();
@@ -241,15 +242,15 @@ package {
 			RepeatUntil.clearQueue();
 			Input.clearEvents();
 			
-			// Après un délai
+			// Wait a bit
 			new Wait(30, function() {
-				// Créer l'animation de mort
+				// Death animation
 				var explodingheart:PlayerDeathAnim = new PlayerDeathAnim();
 				explodingheart.x = EnemyWave.currentWave.player.x;
 				explodingheart.y = EnemyWave.currentWave.player.y;
 				screen.addChild(explodingheart);
 				
-				// Détruire tout
+				// Destroy everything
 				if (Player.shots.length > 0) {do {Player.shots[0].destroy();} while (Player.shots.length > 0);}
 				EnemyWave.currentWave.endWave(false);
 				setState("void");
@@ -258,7 +259,7 @@ package {
 				screen.removeChild(TPMeter.instance);
 				screen.removeChild(UI.instance);
 				
-				// Jouer la musique et créer le GameOverScreen
+				// Play music and show the GameOverScreen
 				new Wait(160, function() {
 					bgm = SoundLibrary.play("mus_defeat", 0.5, int.MAX_VALUE);
 					screen.addChild(new GameOverScreen());
@@ -266,7 +267,7 @@ package {
 			});
 		}
 		
-		// Set up le jeu après un GameOver
+		// Set up the game again post-GameOverScreen
 		public static function reinitialize():void {
 			// Kris
 			screen.kris = new Kris();
@@ -296,39 +297,39 @@ package {
 			newUI.y = 365;
 			screen.addChild(newUI);
 			
-			// Son et selectingButton
+			// Sounds and selectingButton
 			bgm = SoundLibrary.play("mus_bigshot", 0.3, int.MAX_VALUE);
 			setupInventory();
 			setState("selectingButton");
 		}
 		
-		// Provenant du menu, commence le jeu
+		// From the menu, start the game
 		public static function startGame():void {
 			bgm.stop();
 			bgm = SoundLibrary.play("mus_bigshot", 0.3, int.MAX_VALUE);
 			screen.changeMenu("none");
-			screen.gotoAndStop(1, "Jeu");
+			screen.gotoAndStop(1, "Fight");
 			setupInventory();
 		}
 		
-		// Établir l'inventory et l'équipement 
+		// Setup inventory and equipment
 		private static function setupInventory():void {
-			// L'inventory
+			// Inventory
 			Item.inventory = [];
 			for each (var gameitem:Object in screen.selectedItems) {
 				Item.inventory.push(gameitem.item);
 			}
 			
-			// L'équipement
+			// Equipement
 			Kris.weapon = screen.selectedSword.item;
 			Kris.armor = [];
 			Kris.armor.push(screen.selectedArmorA.item);
 			Kris.armor.push(screen.selectedArmorB.item);
 		}
 		
-		// Set up le mainMenu
+		// Setup mainMenu
 		public function setupMenu():void {
-			// Les TextFormats
+			// TextFormats
 			title.textfield.defaultTextFormat = titleFormat;
 			txtTutorial.field.defaultTextFormat = titleFormat;
 			txtStart.field.defaultTextFormat = titleFormat;
@@ -340,22 +341,24 @@ package {
 			txtItems.field.autoSize = TextFieldAutoSize.CENTER;
 			txtItems.field.wordWrap = false;
 			
-			// Changer les textes
+			// Change texts
 			title.textfield.text = getText("menuTitle");
 			txtTutorial.field.text = getText("menuBtnTutorial");
 			txtStart.field.text = getText("menuBtnStart");
 			txtItems.field.text = getText("menuBtnItems");
 			
-			// Attendre pour que le ComboBox s'initie
+			// Wait for the ComboBox to set itself up
 			new Wait(1, function() {
 				cmbLanguage.removeAll();
-				// Setup le combobox des languages
+				// ComboBox for the languages
 				for each (var _language:XML in LocalizationHandler.languages) {
 					cmbLanguage.addItem({label: _language.langName, ref: _language});
 				}
+				// Start the game (debugging purposes)
+				if (skipmenu == true) {startGame();}
 			});
 			
-			// Ajouter les eventListeners
+			// Add eventListeners
 			txtStart.field.addEventListener(MouseEvent.ROLL_OVER, makeButtonYellow);
 			txtStart.field.addEventListener(MouseEvent.ROLL_OUT, makeButtonWhite);
 			txtStart.field.addEventListener(MouseEvent.CLICK, clickButton);
@@ -368,14 +371,14 @@ package {
 			cmbLanguage.addEventListener(Event.CHANGE, changeLanguage);
 		}
 		
-		// Changer le language
+		// Change languages
 		private function changeLanguage(e:Event):void {
 			dialogue = cmbLanguage.getItemAt(cmbLanguage.selectedIndex).ref;
-			// Refresh le mainMenu
+			// Refresh mainMenu
 			changeMenu("main");
-			// Réinitier Item pour avoir les nouvelles descriptions
+			// Re-initiate items to have new names & descriptions
 			new Item();
-			// Algorithme de recherche pour changer les descriptions des items déjà sélectionnés
+			// Searches for unchanged descriptions in already-selected items
 			for each (var inventoryItem:Object in selectedItems) {
 				for each (var anyItem:Object in Item.items) {
 					if (inventoryItem.item.name == anyItem.name) {
@@ -385,49 +388,48 @@ package {
 			}
 		}
 		
-		// Changer un bouton à jaune et jouer un son
+		// Makes a button yellow and plays a sound
 		private function makeButtonYellow(e):void {
 			SoundLibrary.play("menumove", 0.3);
 			e.target.textColor = 0xFFFF00;
 		}
 		
-		// Mettre le couleur d'un bouton à blanc encore
+		// Sets the button back to white
 		private function makeButtonWhite(e):void {
 			e.target.textColor = 0xFFFFFF;
 		}
 		
-		// Répondre à un clic d'un bouton
+		// Handle button clicks
 		private function clickButton(e:MouseEvent):void {
-			// Le mainMenu
+			// In mainMenu
 			if (currentFrameLabel == "mainMenu") {
-				// txtStart commence le jeu
+				// txtStart start the game
 				if (e.target == txtStart.field) {startGame();}
-				// txtItems ouvre le itemMenu
+				// txtItems open the item menu
 				else if (e.target == txtItems.field) {changeMenu("item");}
-				// txtTutorial ouvre le tutorial
+				// txtTutorial open the tutorial
 				else if (e.target == txtTutorial.field) {changeMenu("tutorial");}
 			}
-			// Le itemMenu
+			// In itemMenu
 			else if (currentFrameLabel == "itemMenu") {
-				// txtBack retour au mainMenu
+				// txtBack returns to mainMenu
 				if (e.target == txtBack.field) {changeMenu("main");}
-				// txtExport et txtImport commencent le processus de charger l'XML
+				// txtExport and txtImport handles XML stuff
 				else if (e.target == txtExport.field) {saveInventory();}
 				else if (e.target == txtImport.field) {openInventory();}
 			}
-			// Le tutorialMenu
+			// In tutorialMenu
 			else if (currentFrameLabel == "tutorialMenu") {
-				// txtBack retour au mainMenu
+				// txtBack returns to mainMenu
 				if (e.target == txtBack.field) {changeMenu("main");}
 			}
-			// Jouer un son
+			// Play a sound
 			SoundLibrary.play("menuselect", 0.3);
 		}
 		
-		// Changer de menu
+		// Changes the menu
 		private function changeMenu(targetMenu:String):void {
-			// Dépendant de quel menu on change de, effectue des fonctions différents pour nettoyer tout
-			// Enlever les eventListeners, changer des variables, mettre des références à null
+			// Cleanup from last menu
 			if (currentFrameLabel == "mainMenu") {
 				txtStart.field.removeEventListener(MouseEvent.ROLL_OVER, makeButtonYellow);
 				txtStart.field.removeEventListener(MouseEvent.ROLL_OUT, makeButtonWhite);
@@ -460,16 +462,16 @@ package {
 				tutorialObj.destroy();
 			}
 		
-			// Le nouveau menu
-			// À mainMenu
+			// The new menu
+			// To mainMenu
 			if (targetMenu == "main") {
 				gotoAndStop("mainMenu");
 				setupMenu();
 			}
-			// À itemMenu
+			// To itemMenu
 			else if (targetMenu == "item") {
 				gotoAndStop("itemMenu");
-				// Changer les TextFormat des textes
+				// Change TextFormats
 				txtBack.field.defaultTextFormat = titleFormat;
 				txtBack.field.autoSize = TextFieldAutoSize.CENTER;
 				txtBack.field.wordWrap = false;
@@ -486,7 +488,7 @@ package {
 				txtExport.field.autoSize = TextFieldAutoSize.CENTER;
 				txtExport.field.wordWrap = false;
 				
-				// Changer les textes
+				// Sets texts
 				title.textfield.text = getText("menuItemTitle");
 				txtBack.field.text = getText("back");
 				txtEquipment.field.text = getText("menuEquipment");
@@ -494,7 +496,7 @@ package {
 				txtImport.field.text = getText("menuImport") + "\n(XML)";
 				txtExport.field.text = getText("menuExport") + "\n(XML)";
 				
-				// Établir les ComboBox à gauche (l'équipement)
+				// Set up equipment ComboBoxes
 				for each (var sword:Object in Item.krisweapons) {
 					cmbSword.addItem({label: sword.name + " (" + concatStat(sword.at) + "AT " + concatStat(sword.df) + "DF)", ref: sword});
 				}
@@ -506,15 +508,15 @@ package {
 				cmbArmorA.sortItemsOn("label", "ASC");
 				cmbArmorB.sortItemsOn("label", "ASC");
 				
-				// Sélectionner le bon item (ça souvient des vieux sélections)
+				// Select the right items
 				cmbSword.selectedIndex = selectedSword.index;
 				cmbArmorA.selectedIndex = selectedArmorA.index;
 				cmbArmorB.selectedIndex = selectedArmorB.index;
 				
-				// Les items
+				// The items
 				itemboxes = [cmbItem1, cmbItem2, cmbItem3, cmbItem4, cmbItem5, cmbItem6, cmbItem7, cmbItem8, cmbItem9, cmbItem10, cmbItem11, cmbItem12];
 				for (var i:int = 0; i < itemboxes.length; i++) {
-					// Établir les ComboBox
+					// Setup ComboBoxes
 					var box:ComboBox = itemboxes[i];
 					box.dropdownWidth = box.width + 50;
 					for each (var item:Object in Item.items) {
@@ -523,17 +525,17 @@ package {
 					}
 					box.sortItemsOn("label", "ASC");
 					
-					// Un option vide
+					// Empty option for no item
 					box.addItemAt({label: ""}, 0);
 					
-					// Sélectionner le bon item (ça souvient des vieux sélections)
+					// Select the right item (it remembers)
 					if (i < selectedItems.length) {box.selectedIndex = selectedItems[i].index;}
 					
-					// Ajouter l'eventListener
+					// Add eventListener
 					box.addEventListener(Event.CHANGE, changeSelection);
 				}
 				
-				// Ajouter les eventListeners
+				// Add eventListeners
 				cmbSword.addEventListener(Event.CHANGE, changeSelection);
 				cmbArmorA.addEventListener(Event.CHANGE, changeSelection);
 				cmbArmorB.addEventListener(Event.CHANGE, changeSelection);
@@ -547,7 +549,7 @@ package {
 				txtExport.field.addEventListener(MouseEvent.ROLL_OUT, makeButtonWhite);
 				txtExport.field.addEventListener(MouseEvent.CLICK, clickButton);
 			}
-			// À tutorialMenu
+			// To tutorialMenu
 			else if (targetMenu == "tutorial") {
 				gotoAndStop("tutorialMenu");
 				title.textfield.text = "";
@@ -561,81 +563,81 @@ package {
 			}
 		}
 		
-		// Lorsqu'on change de sélection d'un ComboBox en itemMenu
+		// Handle changes to ComboBoxes in itemMenu
 		private function changeSelection(e:Event):void {
-			// Mettre à jour les variables qui souviennent des sélections
+			// Update the memory variables
 			selectedSword = {index: cmbSword.selectedIndex, item: cmbSword.getItemAt(cmbSword.selectedIndex).ref};
 			selectedArmorA = {index: cmbArmorA.selectedIndex, item: cmbArmorA.getItemAt(cmbArmorA.selectedIndex).ref};
 			selectedArmorB = {index: cmbArmorB.selectedIndex, item: cmbArmorB.getItemAt(cmbArmorB.selectedIndex).ref};
 			selectedItems = [];
 			for each (var itembox:ComboBox in itemboxes) {
 				var _item:Object = itembox.getItemAt(itembox.selectedIndex);
-				// Ajouter seulement si un item valid est sélectionné
+				// Only adds if a valid item is selected
 				if (_item.label != "") {
 					selectedItems.push({index: itembox.selectedIndex, item: _item.ref});
 				}
 			}
 		}
 		
-		// Créer un fichier XML de l'état courant du itemMenu
+		// Creates an XML file that corresponds to the current state of the itemMenu
 		private function saveInventory():void {
-			// L'objet XML, l'épée et les armures
+			// Base XML object, add equipment
 			var inventoryXML:XML = <spamtonItems>
 				<sword>{selectedSword.index}</sword>
 				<armorA>{selectedArmorA.index}</armorA>
 				<armorB>{selectedArmorB.index}</armorB>
 			</spamtonItems>;
 			
-			// Ajouter les items
+			// Add items
 			for each (var invItem:Object in selectedItems) {inventoryXML.appendChild(<item>{invItem.index}</item>);}
 			
-			// Avec l'input de l'utilisateur, sauvegarder un fichier avec le data XML ci-dessus
+			// With user input, save to file
 			new FileReference().save(inventoryXML, "InvPreset.xml");
 		}
 		
-		// Ouvrir le File Browser et commencer à charger le fichier sélectionné lorsqu'il y a un
+		// Open the file browser and load the selected file
 		private function openInventory():void {
-			// Garder référence au FileReference et ajouter le premier eventListener
+			// Keep a ref to FileReference and add an eventListener
 			presetFile = new FileReference();
 			presetFile.addEventListener(Event.SELECT, startLoad);
-			// Ouvre le File Browser, filtrer pour des fichiers XML
+			// Open the file browser (filtered for .xml)
 			presetFile.browse([new FileFilter("XML", "*.xml")]);
 		}
 		
-		// Commencer à charger le fichier
+		// Begin loading the file
 		private function startLoad(e:Event):void {
 			// Cleanup
 			presetFile.removeEventListener(Event.SELECT, startLoad);
-			// Un eventListener et commence le chargement
+			// An eventListener and start loading
 			presetFile.addEventListener(Event.COMPLETE, loadInventory);
 			presetFile.load();
 		}
 		
-		// Effectuer les changements selon le fichier chargé
+		// Enact changes from the XML
 		private function loadInventory(e:Event):void {
-			// Cleanup et établissement de l'objet XML
+			// Cleanup and XML object setup
 			presetFile.removeEventListener(Event.COMPLETE, loadInventory);
 			var loadedData:XML = new XML(e.target.data);
 			
-			// Vérifier que le data est valide
+			// Make sure the data is valid
 			if (loadedData.hasOwnProperty("sword") && loadedData.hasOwnProperty("armorA") && loadedData.hasOwnProperty("armorB")) {
-				// Reset le titre du page s'il y avait un erreur avant
+				// Undo error text
 				title.textfield.text = getText("menuItemTitle");
 				title.textfield.textColor = 0xFFFFFF;
 				
-				// Remplacer des variables selon les données du fichier sélectionné
+				// Replace variables with XML data
 				cmbSword.selectedIndex = loadedData.sword;
 				cmbArmorA.selectedIndex = loadedData.armorA;
 				cmbArmorB.selectedIndex = loadedData.armorB;
-				// S'il y a des items dans l'XML, remplacer les boites
+				// If the XML had items, fill the boxes with them
 				if (loadedData.hasOwnProperty("item")) {for (var n:int = 0; n < itemboxes.length; n++) {itemboxes[n].selectedIndex = int(loadedData.item[n]);}}
-				// Si non, vider tout les boites d'items
+				// Otherwise, all item ComboBoxes will be empty
 				else {for each (var __box:ComboBox in itemboxes) {__box.selectedIndex = 0;}}
 				
-				// Effectuer changeSelection() pour solidifier les changements
+				// changeSelection() to solidify changes
 				changeSelection(null);
 			}
-			// Si non, jouer un son et avertir l'utilisateur
+			// Alert user to invalid data
 			else {
 				SoundLibrary.play("err");
 				title.textfield.text = getText("fileImportError");
@@ -644,13 +646,13 @@ package {
 			}
 		}
 		
-		// Transforme null en 0 pour faciliter l'affichage des statistiques
+		// Replace null with 0 for stat display
 		private function concatStat(n):Number {
 			if (n == null) {return 0;}
 			else {return n;}
 		}
 		
-		// Retourner une piàce de dialogue en forme de String formatté
+		// Return formatted string ripped from localization XML
 		public static function getText(ref:String):String {
 			return dialogue[ref].toString().replace(/\\n/g, "\n");
 		}

@@ -1,8 +1,6 @@
 /*
-	File Name: CartRail.as
-	Programmeur: William Mallette
 	Date: 30-11-2021
-	Description: Le rail du cart de RollerCoaster
+	Description: Rail for the rollercoaster (not a bullet)
 */
 
 package scripts.bullets {
@@ -13,25 +11,25 @@ package scripts.bullets {
 	public class CartRail extends Sprite {
 		private var eventID:String;
 	
-		// constructor
+		// Constructor
 		public function CartRail() {
 			eventID = "CartRail-" + String(Math.random());
 			GlobalListener.addEvent(update, eventID);
 			addEventListener(Event.REMOVED_FROM_STAGE, destroy, false, 0, true);
 		}
 		
-		// Mouvement du rail
+		// Movement
 		private function update():void {
-			// Pour chaque IndividualRail
+			// For each IndividualRail
 			for (var i:int = 0; i < this.numChildren; i++) {
 				var rail = this.getChildAt(i);
-				// Repositionner si nécessaire
+				// Repositioning
 				if (rail.x > (640 - this.x)) {rail.x = -this.width + 330;}
 				else {rail.x += 3.5;}
 			}
 		}
 		
-		// Détruire l'objet
+		// Destruction
 		private function destroy(e:Event):void {
 			GlobalListener.removeEvent(eventID);
 			removeEventListener(Event.REMOVED_FROM_STAGE, destroy);

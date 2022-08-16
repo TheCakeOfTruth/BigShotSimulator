@@ -1,8 +1,6 @@
 /*
-	File Name: EnemyWave.as
-	Programmeur: William Mallette
 	Date: 26-11-2021
-	Description: Classe de base pour les attaques de l'ennemi
+	Description: Base class for waves
 */
 
 package scripts {
@@ -34,33 +32,33 @@ package scripts {
 		private var lastTime:Number;
 		private var eventID:String;
 		
-		// constructor
+		// Constructor
 		public function EnemyWave() {
 			currentWave = this;
-			// Commencer le timer, ajouter l'eventListener
+			// Start the timer & add eventListener
 			lastTime = getTimer();
 			eventID = "EnemyWave-" + String(Math.random());
-			// Un délai avant le setup (pour que le constructor des classes hérités peuvent affecter ce qui arrive)
+			// Small delay to let everything work its magic
 			new Wait(1, function() {setupArena(); setupPlayer(); GlobalListener.addEvent(updateWave, eventID);});
 		}
 		
-		// À chaque frame
+		// Every frame
 		private function updateWave():void {
 			timer++;
-			// Réduire waveTimer
+			// Reduce waveTimer
 			waveTimer -= getTimer() - lastTime;
 			lastTime = getTimer();
-			// Réduire waveTimer encore plus si on graze
+			// Reduce waveTimer more if grazing
 			if (player.grazingBullets.length > 0) {waveTimer--;}
-			// Terminer le wave quand waveTimer est 0
+			// End the wave when waveTimer is 0
 			if (waveTimer <= 0) {endWave();}
-			// Fonctionalité héritable
+			// Inherited functionality
 			update();
 		}
 		
-		// Terminer le wave
+		// End the wave
 		public function endWave(transition:Boolean = true):void {
-			// Détruire chaque Bullet
+			// Destroy all Bullets
 			for each (var waveBullet:Bullet in bullets) {
 				if (waveBullet.exists) {
 					waveBullet.destroy();
@@ -69,14 +67,14 @@ package scripts {
 			waveBullet = null;
 			bullets = null;
 			
-			// Enlever l'objet, l'eventListener, et effectuer n'importe quel fonction spécifique d'un wave (cleanup())
+			// Remove the object
 			if (this.parent) {this.parent.removeChild(this);}
 			GlobalListener.removeEvent(eventID);
 			cleanup(transition);
 			currentWave = null;
 			
 			if (transition) {
-				// Animer et enlever le Player et l'Arena
+				// Animate the removal of the Player and Arena
 				var returnVector:MovementVector = MovementVector.getVectorFromDimensions(Kris.instance.x + 25 - player.x, Kris.instance.y - 25 - player.y);
 				returnVector.setMagnitude(returnVector.getMagnitude() / 10);
 				var returnDim:Point = returnVector.getDimensions();
@@ -103,7 +101,7 @@ package scripts {
 				}
 			}
 			else {
-				// Enlever le Player et l'Arena sans d'animation
+				// Removes Player and Arena without transition animations
 				Main.screen.removeChild(player);
 				player = null;
 				
@@ -111,17 +109,17 @@ package scripts {
 				arena = null;
 			}
 			
-			// Retourne à selectingButton
+			// Return to selectingButton
 			Main.setState("selectingButton");
 		}
 		
-		// Fonction vide, pour être utilisé comme 'override'
+		// Override function for frame-by-frame action
 		public function update():void {}
 		
-		// Fonction vide, pour être utilisé comme 'override'
+		// Override function for clearing the wave
 		public function cleanup(transition:Boolean):void {}
 		
-		// Positionner, redimensionner, et animer l'Arena
+		// Position, resize, and animate the arena
 		private function setupArena():void {
 			arena = new Arena();
 			arena.x = arenaConfig.x;
@@ -143,27 +141,27 @@ package scripts {
 			}})
 		}
 		
-		// Créer et animer le Player
+		// Create and animate the player
 		private function setupPlayer():void {
-			// Utiliser le position de l'Arena par défaut
+			// Use Arena position by default
 			var targetpos:Array;
 			if (playerPosition == null) {targetpos = [arenaConfig.x, arenaConfig.y];}
 			else {targetpos = playerPosition;}
 			
-			// Commencer à Kris
+			// Start at Kris
 			player = new Player();
 			player.moveTo(Kris.instance.x + 25, Kris.instance.y - 25);
-			// Disable l'input pendant l'animation
+			// Disable inputs during animation
 			player.takeInput = false;
 			Main.screen.addChildAt(player, Main.screen.getChildIndex(this) + 1);
 			
-			// Un vecteur entre le Player et sa position final
+			// Use a vector to move the player
 			var path:MovementVector = MovementVector.getVectorFromDimensions(targetpos[0] - player.x, targetpos[1] - player.y);
-			// Comme ceci, il devrait prendre 15 frames pour arriver
+			// It'll take 15 frames to reach the position
 			path.setMagnitude(path.getMagnitude() / 15);
 			var dim:Point = path.getDimensions();
 			
-			// Bouger le Player vers sa position final jusqu'à temps qu'il arrive
+			// Move the player until they arrive
 			new RepeatUntil(function() {player.move(dim.x, dim.y);}, function() {if (player.x >= targetpos[0]) {
 				player.takeInput = true;
 				player.moveTo(targetpos[0], targetpos[1]);
@@ -171,7 +169,7 @@ package scripts {
 			}});
 		}
 		
-		// Ajouter un Bullet à l'array
+		// Add a bullet to the array
 		public function addBullet(newBullet:Bullet, addToScreen:Boolean = true):void {
 			bullets.push(newBullet);
 			if (addToScreen) {addChild(newBullet);}

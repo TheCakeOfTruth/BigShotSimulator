@@ -1,8 +1,6 @@
 /*
-	File Name: RollerCoaster.as
-	Programmeur: William Mallette
 	Date: 30-11-2021
-	Description: Le deuxième attaque
+	Description: Rollercoaster attack
 */
 
 package scripts.attacks {
@@ -12,7 +10,7 @@ package scripts.attacks {
 	import scripts.utils.Wait;
 	
 	public class RollerCoaster extends EnemyWave {
-		// Voici l'array bidimensionnel.
+		// Various preconfigurations
 		private static var settings1:Array = [["h", "m", "m", "m", "m"],
 											  60,
 		                                      ["m", "m", "h", "b", "m"],
@@ -37,13 +35,13 @@ package scripts.attacks {
 		
 		private var carts:Array = [];
 		
-		// constructor
+		// Constructor
 		public function RollerCoaster() {
-			// Setup le wave
+			// Setup
 			waveTimer = 12750;
 			arenaConfig = {x: 305, y: 171, width: 250, height: 172};
 			
-			// Créer le CartRail
+			// Make the CartRail
 			var rail:CartRail = new CartRail();
 			rail.x = 320;
 			rail.y = 304;
@@ -52,13 +50,13 @@ package scripts.attacks {
 			createCarts(settings1);
 		}
 		
-		// Créer chaque cart dans l'array bidimensionnel spécifié
+		// Create carts from the settings arrays
 		private function createCarts(mode:Array):void {
 			var delay:int = 40;
 			for (var i:int = 0; i < mode.length; i++) {
-				// Obtenir l'objet à l'index
+				// Get the object at the index
 				var cart = mode[i];
-				// Si c'est un array, crée un Cungadero avec ces objets (après le délai)
+				// If it's an array, create a Cungadero object with that configuration
 				if (cart is Array) {
 					var newcart:Cungadero = new Cungadero(cart);
 					this.addChild(newcart);
@@ -66,18 +64,18 @@ package scripts.attacks {
 					newcart.startWait(5 + delay);
 					delay += 10;
 				}
-				// Si c'est un nombre, change le délai à ce nombre
+				// If it's a number, delay the next cart by that many frames
 				else if (cart is int) {
 					delay += cart;
 				}
 			}
 		}
 		
-		// À chaque frame
+		// Every frame
 		public override function update():void {
 			for each (var b:Cungadero in carts) {
 				if (b.isMoving) {
-					// Bouger chaque cart avec une vitesse variable
+					// Move each cart with a variable speed
 					var xvel:Number = 2 * (-Math.cos(((Math.PI * b.x) / 320) - 160 * Math.PI) - 2.5);
 					b.x += xvel;
 				}

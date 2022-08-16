@@ -1,8 +1,6 @@
 /*
-	File Name: DamageNumber.as
-	Programmeur: William Mallette
 	Date: 10-11-2021
-	Description: Les nombres qui apparaissent quand un personnage est endommagé ou guérit
+	Description: Numbers that appear when damage/healing
 */
 
 package scripts {
@@ -13,7 +11,7 @@ package scripts {
 	import flash.geom.ColorTransform;
 	
 	public class DamageNumber extends Sprite {
-		// Positionnement et des images/couleurs qui peuvent être accédés par tous instances de ce classe.
+		// Static variables for numbers and colors
 		private static var numNumbers:uint = 0;
 		private static var numbers:Array = [new DMN0(0,0), new DMN1(0,0), new DMN2(0,0), new DMN3(0,0), new DMN4(0,0), new DMN5(0,0), new DMN6(0,0), new DMN7(0,0), new DMN8(0,0), new DMN9(0,0)];
 		private static var maxsign:DMNMax = new DMNMax(0,0);
@@ -25,16 +23,16 @@ package scripts {
 		private var initialX:Number;
 		private var initialY:Number;
 		
-		// constructor
+		// Constructor
 		public function DamageNumber(n, t:DisplayObject, c:String = "white", yoffset:Number = 0, xoffset:Number = 0) {
-			// Si on utilise un numéro, sépare les caractères.
+			// Separate characters for numbers
 			if (typeof(n) == "number") {
 				var chiffres:Array = String(n).split("");
-				// Pour chaque caractère, créer un Bitmap du chiffre correspondant et addChild.
+				// For each character, create the corresponding Bitmap and add it as a child to this object
 				for each (var chiffre:String in chiffres) {
 					var bmp:Bitmap = new Bitmap(numbers[int(chiffre)]);
 					this.addChild(bmp);
-					// Positionner l'image correctement.
+					// Position the number
 					if (this.numChildren > 1) {
 						var lastn:DisplayObject = this.getChildAt(this.getChildIndex(bmp) - 1);
 						bmp.x = lastn.x + lastn.width;
@@ -43,31 +41,31 @@ package scripts {
 				}
 				chiffre = null;
 			} 
-			// Parfois on veut utiliser un autre image, comme "MAX".
+			// Other damage text (like MAX)
 			else if (n == "max") {
 				var bmpmax:Bitmap = new Bitmap(maxsign);
 				this.addChild(bmpmax);
 				bmpmax.y -= bmpmax.height;
 			}
 			
-			// Positionner l'objet
+			// Position the object
 			this.x = t.x + xoffset;;
 			this.y = t.y - 25 * numNumbers + yoffset;
 			
-			// Montrer l'objet
+			// Show the object
 			Main.screen.addChild(this);
 			
-			// Garder les positions initials de l'objet (monter l'objet s'il y a déjà quelques-uns).
+			// Keep initial position
 			initialX = this.x
 			initialY = this.y;
 			
-			// Augmenter numNumbers pour montrer le nouveau montant d'instances de ce classe.
+			// Track how many number objects exist
 			numNumbers++;
 			
-			// Ajouter un eventListener.
+			// Add eventListener
 			this.addEventListener(Event.ENTER_FRAME, update, false, 0, true);
 			
-			// Changer le couleur si nécessaire.
+			// Change the color
 			switch (c) {
 				case "blue":
 					this.transform.colorTransform = colorBlue;
@@ -81,24 +79,24 @@ package scripts {
 			}
 		}
 		
-		// Changer l'image à chaque frame.
+		// On every frame
 		private function update(e:Event):void {
 			timer++;
-			// Bouger l'objet de façon parabolique.
+			// Move the object
 			if (this.x < initialX + 50) {
 				this.x += 2.4;
 				this.y = initialY + 0.02 * (x - initialX) * (x - (initialX + 50));
 			}
-			// Animation de disparition.
+			// Disappear animation
 			else if (timer > 60) {
 				this.height += (timer - 60)/10;
 				this.alpha -= 0.05;
 			}
-			// Détruire l'objet quand ce n'est plus visible.
+			// Destroy object when no longer visible
 			if (this.alpha <= 0) {this.destroy();}
 		}
 		
-		// Détruire l'objet
+		// Destroy the object
 		private function destroy():void {
 			numNumbers--;
 			this.removeEventListener(Event.ENTER_FRAME, update);

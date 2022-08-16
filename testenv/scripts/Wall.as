@@ -1,8 +1,6 @@
 /*
-	File Name: Wall.as
-	Programmeur: William Mallette
 	Date: 30-10-2021
-	Description: Les murs de l'aréna
+	Description: Arena walls
 */
 
 package scripts{
@@ -15,39 +13,37 @@ package scripts{
 		public var colliderVector:MovementVector;
 		private var arrayID:int = -1;
 		
-		// constructor
+		// Constructor
 		public function Wall() {
-			// Créer une vecteur correspondant à la rotation du mur.
+			// Make a vector perpendicular to the wall
 			colliderVector = new MovementVector(-this.rotation + 90, 3.89);
-			// Un eventListener
+			// An eventListener
 			addEventListener(Event.ENTER_FRAME, checkCollision, false, 0, true);
 			addEventListener(Event.REMOVED_FROM_STAGE, cleanup, false, 0, true);
 		}
 		
-		// Vérifier pour une collision à chaque frame
+		// Check for collision each frame
 		private function checkCollision(e:Event):void {
-			// Changer la magnitude du vecteur dépendant de la rotation.
+			// Depending on the rotation, increase the magnitude
 			if (Math.round(rotation) % 90 == 0) {colliderVector.setMagnitude(2.75);}
 			else {colliderVector.setMagnitude(3.89);}
-			// Assurer que l'angle est correct
+			// Make sure the angle is right
 			colliderVector.setAngle(-rotation + 90);
 			
 			if (Player.instance != null) {
-				// Pour chaque point de collision du Player.instance, vérifie s'il est en collision
+				// For each collision point on the player, check if it's colliding with the wall
 				for each (var cP:Point in Player.instance.collisionPoints) {
-					// Si on est en collision, et ce mur n'est pas encore dans l'array du Player.instance,
+					// If there is a collision, add the wall to an array (if needed)
 					if (hitTestPoint(cP.x, cP.y, true) && arrayID == -1) {
-						// Ajoute le mur à l'array, identifie son index, et break pour éviter une duplication
 						Player.instance.collidingWalls.push(this);
 						arrayID = Player.instance.collidingWalls.length - 1;
 						break;
 					}
-					// Si non,
+					// If not, and the wall is still in the array, remove it
 					else {
-						// S'il n'y a aucun collision, et le mur est dans l'array, enlève-lui.
 						if (arrayID != -1) {
 							Player.instance.collidingWalls.splice(arrayID, 1);
-							// Adjuster les indexes des autres murs en collision.
+							// Adjust other arrayIDs
 							for each (var otherWall:Wall in Player.instance.collidingWalls) {
 								if (otherWall.arrayID > arrayID) {otherWall.arrayID--;}
 							}
@@ -61,7 +57,7 @@ package scripts{
 			}
 		}
 		
-		// Enlever les eventListener
+		// Remove eventListeners
 		private function cleanup(e:Event):void {
 			removeEventListener(Event.ENTER_FRAME, checkCollision);
 			removeEventListener(Event.REMOVED_FROM_STAGE, cleanup);

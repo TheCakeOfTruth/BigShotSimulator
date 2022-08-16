@@ -1,8 +1,6 @@
 /*
-	File Name: NeoHeart.as
-	Programmeur: William Mallette
 	Date: 08-12-2021
-	Description: Le coeur pour HeartAttack
+	Description: The heart of the problem
 */
 
 package scripts.bullets {
@@ -14,7 +12,7 @@ package scripts.bullets {
 		public var chain:HeartString;
 		private var hp:Number = 140;
 	
-		// constructor
+		// Constructor
 		public function NeoHeart() {
 			shootable = true;
 			destroyBigShot = true;
@@ -22,17 +20,17 @@ package scripts.bullets {
 			element = 6;
 		}
 		
-		// Quand le heart est shot
+		// When the heart is shot
 		public override function onShot(shot):void {
-			// Jouer un animation et un son
+			// Play an animation and a sound
 			gotoAndPlay("shot");
 			SoundLibrary.play("enemydamage", 0.5);
 			
-			// Réduire hp
+			// Reduce the heart's HP
 			if (shot is BigShot) {hp -= 20;}
 			else {hp -= 5;}
 			
-			// Si hp dépasse 0, commencer la destruction
+			// At 0, begin destruction
 			if (hp <= 0) {chain.destroy();}
 		}
 	}

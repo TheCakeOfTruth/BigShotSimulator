@@ -1,8 +1,6 @@
 /*	
-	File Name: DiamondAttack.as
-	Programmeur: William Mallette
 	Date: 13-12-2021
-	Description: Le Bullet de diamant relié au HeartAttack
+	Description: Mine Diamonds
 */
 
 package scripts.bullets {
@@ -13,7 +11,7 @@ package scripts.bullets {
 	public class DiamondAttack extends Bullet {
 		private var vector:MovementVector;
 		
-		// constructor
+		// Constructor
 		public function DiamondAttack(rotation:Number = 0) {
 			element = 6;
 			damageMultiplier = 4;
@@ -21,14 +19,14 @@ package scripts.bullets {
 			vector = new MovementVector(this.rotation, 2);
 		}
 		
-		// À chaque frame
+		// Each frame
 		public override function update():void {
-			// Détruire l'objet quand elle n'est plus sur l'écran
+			// Destroy the object when it's no longer on screen
 			if (this.x < -100 || this.y < -100 || this.x > 700 || this.y > 500) {
 				destroy();
 			}
 			else {
-				// Accélération et mouvement
+				// Acceleration and movement
 				vector.setMagnitude(vector.getMagnitude() + 0.05);
 				var dim:Point = vector.getDimensions();
 				this.x += dim.x;

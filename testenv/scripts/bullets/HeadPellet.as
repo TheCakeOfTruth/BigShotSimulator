@@ -1,8 +1,6 @@
 /*
-	File Name: HeadPellet.as
-	Programmeur: William Mallette
 	Date: 03-11-2021
-	Description: Les disques lancés par les FlyingHeads
+	Description: [[BIG]] white, "friendliness pellets"
 */
 
 package scripts.bullets {
@@ -14,22 +12,22 @@ package scripts.bullets {
 	public class HeadPellet extends Bullet {
 		private var vector:MovementVector;
 		
-		// constructor
+		// Constructor
 		public function HeadPellet(x:Number, y:Number) {
 			element = 6;
-			// Positionner
+			// Positioning
 			this.x = x;
 			this.y = y;
-			// Calculer le vecteur de mouvement
+			// The vector (aims at player's current position)
 			vector = MovementVector.getVectorFromDimensions(Player.instance.x - x, -(Player.instance.y - y));
 			vector.setMagnitude(5);
 		}
 		
-		// À chaque frame
+		// Every frame
 		public override function update():void {
 			// Rotation
 			this.rotation -= 15
-			// Mouvement
+			// Movement
 			var dim:Point = vector.getDimensions()
 			this.x += dim.x;
 			this.y -= dim.y;

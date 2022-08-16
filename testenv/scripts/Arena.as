@@ -1,8 +1,6 @@
 /*
-	File Name: Arena.as
-	Programmeur: William Mallette
 	Date: 24-11-2021
-	Description: L'aréna
+	Description: Battle arena
 */
 
 package scripts {
@@ -10,21 +8,21 @@ package scripts {
 	import flash.events.Event;
 
 	public class Arena extends Sprite {
-		// On n'a pas besoin d'un constructor car il n'y a rien à faire
+		// No need for a contstructor
 		
-		// Changer la grandeur de l'Arena
+		// Change the size
 		public function setSize(w:Number, h:Number):void {
-			// Les dimensions
+			// Wall dimensions
+			// Always change width because Wall objects are laid out horizontally
 			upwall.getChildAt(0).width = w;
 			downwall.getChildAt(0).width = w;
-			// On change toujours 'width' car l'objet Wall est horizontal
 			leftwall.getChildAt(0).width = h - 1;
 			rightwall.getChildAt(0).width = h - 1;
-			// L'espace noir
+			// The background
 			bg.width = w;
 			bg.height = h;
 			
-			// Changer les positions des murs
+			// Change Wall positions
 			upwall.y = Math.ceil(-h / 2 + 5);
 			downwall.y = Math.floor(h / 2 - 5);
 			leftwall.x = Math.ceil(-w / 2) + 5;
