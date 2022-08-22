@@ -9,6 +9,7 @@ package scripts.bullets {
 	import scripts.Bullet;
 	import scripts.EnemyWave;
 	import scripts.utils.Input;
+	import scripts.utils.Wait;
 
 	public class Bomb extends Bullet {
 		private var beenShot:Boolean = false;
@@ -27,7 +28,8 @@ package scripts.bullets {
 		
 		// Play a sound and an animation (see action code for Bomb and BombBlast objects)
 		private function explode():void {
-			SoundLibrary.play("bombbeep", 0.5, 2);
+			SoundLibrary.play("bombbeep", 0.5);
+			new Wait(5, function() {SoundLibrary.play("bombbeep", 0.5);});
 			this.play();
 		}
 		

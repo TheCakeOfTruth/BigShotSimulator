@@ -1,8 +1,6 @@
 /*
-	File Name: InventoryArrow.as
-	Programmeur: William Mallette
 	Date: 22-11-2021
-	Description: Signe qui pointe vers le reste de l'inventory
+	Description: Arrow that floats and points up and down
 */
 
 package scripts.ui {
@@ -14,9 +12,9 @@ package scripts.ui {
 		private var baseY:Number;
 		private var timer:int = 0;
 	
-		// constructor
+		// Constructor
 		public function InventoryArrow(x:Number, y:Number) {
-			// positionner
+			// Position
 			baseX = x;
 			baseY = y;
 			this.x = x;
@@ -25,18 +23,18 @@ package scripts.ui {
 			addEventListener(Event.ENTER_FRAME, update, false, 0, true);
 		}
 		
-		// Animation simple (mouvement sinus)
+		// Simple animation
 		private function update(e:Event):void {
 			timer++;
 			this.y = Math.round(3 * Math.sin(timer/10)) + baseY;
 		}
 		
-		// Tourner 180 degrés
+		// Flip it
 		public function flip():void {
 			this.rotation += 180;
 		}
 		
-		// Enlever l'eventListener
+		// Remove eventListener
 		public function prepDestruction():void {
 			removeEventListener(Event.ENTER_FRAME, update);
 		}

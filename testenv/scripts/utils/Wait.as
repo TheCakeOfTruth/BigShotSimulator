@@ -1,64 +1,62 @@
 /*  
-	Nom du fichier: Wait.as
-	Programmeur: William Mallette
 	Date: 09/11/2021
-	Description: exécuter une fonction après un montant de temps spécifié
+	Description: Executes a function after a delay
 */
 
 package scripts.utils {
 	import flash.display.Sprite;
 	import flash.events.Event;
 	
-	// J'ai utilisé quelque chose similaire dans le passé pour des projets personnels (et peut-être en ICS3U), c'est un outil très utile que j'utiliserais probablement beaucoup dans ce cours aussi.
+	// I used something similar in past projects, it's very useful and I'll probably use it a lot in almost everything I do
 	public class Wait extends Sprite {
-		// Un array global qui garde les objets Wait
+		// Global array to hold all the Waits
 		public static var waitArray:Array = [];
 	
-		// un montant de temps (en frames)
+		// Time (in frames)
 		private var _time:int;
-		// une fonction à exécuter
+		// The function to run
 		private var func:Function;
-		// L'index dans l'array
+		// The index in the array
 		private var array_index:int;
 		
 		public function Wait(t:int, action:Function) {
-			// Garder les paramètres
+			// Store the parameters
 			_time = t;
 			func = action;
-			// updateTimer à chaque frame
+			// updateTimer every frame
 			addEventListener(Event.ENTER_FRAME, updateTimer, false, 0, true);
-			// Mettre l'objet dans l'Array et garder le position de l'objet dans l'Array
+			// Add the object to the array
 			array_index = waitArray.push(this) - 1;
 		}
 		
 		private function updateTimer(e:Event):void {
-			// Diminue _time jusqu'à 0
+			// Reduce _time to 0
 			if (_time > 0) {_time--;}
-			// Exécute la fonction et enlève l'objet de l'Array
+			// Run the function and delete the object
 			else {func.call(); removeFromQueue();}
 		}
 		
 		private function removeFromQueue():void {
-			// Arrêter d'exécuter updateTimer
+			// Stop updateTimer
 			removeEventListener(Event.ENTER_FRAME, updateTimer)
 			for (var i in waitArray) {
-				// Pour chaque autre objet Wait, si c'est après celui-ci, shift à la gauche par 1
+				// For every other Wait, if it's later, adjust its array_index
 				if (waitArray[i].array_index > array_index) {
 					waitArray[i].array_index--;
 				}
 			}
 			i = null;
-			// Enlève l'objet de l'Array
-			// S'il n'y a plus de références globales à l'objet, ça devrait ne plus exister
+			// Remove the object from the array
+			// If there are no longer any global references to the object, it should no longer exist
 			waitArray.splice(array_index, 1);
 		}
 		
-		// Enlever l'eventlistener indépendamment de removeFromQueue
+		// Remove the eventlistener
 		public function _removeEventListener():void {
 			removeEventListener(Event.ENTER_FRAME, updateTimer);
 		}
 		
-		// Vider waitArray
+		// Empty waitArray
 		public static function clearQueue():void {
 			for each (var waitobj:Wait in waitArray) {
 				waitobj._removeEventListener();

@@ -1,8 +1,6 @@
 /*
-	File Name: RandomRange.as
-	Programmeur: William Mallette
 	Date: 28-12-2021
-	Description: J'ai finalement décidé d'ajouter une méthode pour obtenir un nombre aléatoire entre deux autres nombres, au lieu de taper cette équation mille fois
+	Description: Finally made a function to get a random number between two numbers because I was tired of doing it manually every time
 */
 
 package scripts.utils {

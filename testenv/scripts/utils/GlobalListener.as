@@ -1,9 +1,6 @@
 /*
-	File Name: GlobalListener.as
-	Programmeur: William Mallette
 	Date: 05-01-2022
-	Description: Un EventListener pour ENTER_FRAME global pour (la plupart) des objets
-	             Réutilise des parties de code de Input.as
+	Description: A global eventListener for Event.ENTER_FRAME
 */
 
 package scripts.utils {
@@ -14,54 +11,54 @@ package scripts.utils {
 	public class GlobalListener extends Sprite {
 		public static var handler:GlobalListener;
 		private static var eventDict:Dictionary = new Dictionary();
-		// Celui-ci est pour le débogage et sert aucun utilité fonctionnel
+		// For debugging purposes only
 		private static var eventKeys:Dictionary = new Dictionary();
 	
-		// constructor, faut seulement être exécuté un fois
+		// Constructor, only run once
 		public function GlobalListener() {
 			handler = this;
 			startAll();
 		}
 		
-		// À chaque frame
+		// Every frame
 		private static function update(e:Event):void {
-			// Exécuter chaque fonction dans eventDict
+			// Run each function in eventDict
 			for each (var func:Function in eventDict) {
 				func.call();
 			}
 			func = null;
 		}
 		
-		// Ajouter un event à eventDict
+		// Add an event to eventDict
 		public static function addEvent(event:Function, keyname:String):void {
 			eventDict[keyname] = event;
 			eventKeys[keyname] = keyname;
 		}
 		
-		// Enlever un event de eventDict
+		// Remove an event from eventDict
 		public static function removeEvent(keyname:String):void {
 			delete eventDict[keyname];
 			delete eventKeys[keyname];
 		}
 		
-		// Enlever l'eventlistener et si spécifié, vider eventDict
+		// Remove the eventListener and if specified, empty eventDict
 		public static function stopAll(clear:Boolean = false):void {
 			handler.removeEventListener(Event.ENTER_FRAME, update);
 			if (clear) {clearEvents();}
 		}
 		
-		// Vider eventDict
+		// Empty eventDict
 		public static function clearEvents():void {
 			eventDict = new Dictionary();
 			eventKeys = new Dictionary();
 		}
 		
-		// Ajouter l'eventlistener
+		// Add the eventlistener
 		public static function startAll():void {
 			handler.addEventListener(Event.ENTER_FRAME, update);
 		}
 		
-		// Trace chaque event actif
+		// Debug: trace every active event
 		public static function debugPrintAllEvents():void {
 			for each (var eventkey:String in eventKeys) {
 				trace(eventkey);

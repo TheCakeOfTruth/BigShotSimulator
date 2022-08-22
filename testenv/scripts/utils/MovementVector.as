@@ -1,8 +1,6 @@
 /*
-	File Name: MovementVector.as
-	Programmeur: William Mallette
 	Date: 30-10-2021
-	Description: Des vecteurs, bonne chance que j'ai pris physique l'année passée!
+	Description: Vectors
 */
 
 package scripts.utils {
@@ -12,14 +10,14 @@ package scripts.utils {
 		private var magnitude:Number;
 		private var angle:Number;
 		
-		// constructor
+		// Constructor
 		public function MovementVector(a:Number=0, m:Number=0) {
-			// Définir l'angle et le magnitude
+			// Define the angle and magnitude
 			setAngle(a);
 			setMagnitude(m);
 		}
 		
-		// Plusieurs fonctions qui changent ou retournent des variables privés
+		// Various functions to change or return private variables
 		
 		public function setAngle(n:Number):void {angle = n % 360;}
 		
@@ -29,31 +27,29 @@ package scripts.utils {
 		
 		public function getMagnitude():Number {return magnitude;}
 		
-		// Convertir le vecteur en ses composants et retournent en forme de Point
+		// Convert the vector into its components under the form of a Point
 		public function getDimensions():Point {
 			var pt:Point = new Point();
-			// Les merveilles de la trigonométrie
 			pt.x = BetterRound(magnitude * Math.cos(angle * Math.PI/180), 2);
 			pt.y = BetterRound(magnitude * Math.sin(angle * Math.PI/180), 2);
 			return pt;
 		}
 		
-		// Ajouter deux vecteurs ensemble (overwrite le vecteur de base)
+		// Add two vectors together (overwrites the base vector)
 		public function add(v:MovementVector):void {
-			// Prendre les composants des deux vecteurs et combine-les
+			// Take the components of the two vectors and combine them
 			var newpt:Point = getDimensions().add(v.getDimensions());
-			// Utilise pythagore pour calculer la nouvelle magnitude
+			// Pythagoras for the new magnitude
 			setMagnitude(BetterRound(Math.sqrt(Math.pow(newpt.x, 2) + Math.pow(newpt.y, 2)), 2));
-			// Utilise la loi du tangent inverse pour calculer le nouvel angle
-			// (éviter une division par 0 en ajoutant un décimal insignificant au valeur horizontal)
+			// Inverse tan to get the new angle
+			// (avoid dividing by 0 by adding a very small decimal to the horizontal value)
 			setAngle(BetterRound(Math.atan(newpt.y / (newpt.x + 1e-5)) * 180/Math.PI, 2));
-			// La loi du tan inverse ne fonctionne pas bien avec les angles des quadrants 2 et 3.
-			// Donc si la valeur horizontal est négatif, ajoute 180 degrés à l'angle.
+			// Inverse tan doesn't work great with angles between 90 and 270 degrees
+			// So, if the horizontal value is negative, add 180 degrees to the angle
 			if (newpt.x < 0) {setAngle(getAngle() + 180);}
 		}
 		
-		// Effectuer les mêmes calculs que MovementVector.add, mais utilise les dimensions pour créer un nouvel vecteur
-		// static pour qu'on puisse créer ces vecteurs de n'importe quel fichier
+		// Same math as in MovementVector.add, but use those dimensions to make a new vector altogether
 		public static function getVectorFromDimensions(x:Number, y:Number):MovementVector {
 			var a:Number = Math.atan(y / (x + 1e-5)) * 180/Math.PI;
 			if (x < 0) {a += 180;}

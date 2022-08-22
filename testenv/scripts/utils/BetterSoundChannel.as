@@ -1,8 +1,6 @@
 /*
-	File Name: BetterSoundChannel.as
-	Programmeur: William Mallette
 	Date: 13-12-2021
-	Description: Un SoundChannel qui peut être mieux géré
+	Description: SoundChannel but better
 */
 
 package scripts.utils {
@@ -21,59 +19,59 @@ package scripts.utils {
 		private var loopsRemaining:int;
 		private var _soundTransform:SoundTransform;
 
-		// constructor
+		// Constructor
 		public function BetterSoundChannel(snd:Sound, loops:int = 0, transform:SoundTransform = null) {
-			// Stocker des variables
+			// Store the variables
 			storedSound = snd;
 			if (transform) {_soundTransform = transform;}
 			else {_soundTransform = new SoundTransform()};
 			loopsRemaining = loops;
-			// Jouer le son, ajouter l'eventListener
+			// Play the sound and add an eventListener
 			channel = snd.play(0, 0, transform);
 			addEventListener(Event.ENTER_FRAME, checkTime, false, 0, true);
-			// Stocker le BetterSoundChannel dans l'array
+			// Store the BetterSoundChannel in an array
 			arrayID = playingSounds.push(this) - 1;
-			// Si le son a failli à s'initier, effacer l'objet
+			// If the sound fails to initiate (there is a sound limit), destroy the object
 			if (channel == null) {removeSound();}
 		}
 		
-		// Je ne pouvais pas utiliser Event.SOUND_COMPLETE puisqu'il y aura trop d'un délai avant le loop, donc j'utilise Event.ENTER_FRAME
+		// I couldn't use Event.SOUND_COMPLETE to loop because it caused too much of a delay, so I use Event.ENTER_FRAME and start the next sound a certain amount of time before it ends
 		private function checkTime(e:Event):void {
-			// Loop lorsqu'on est à environ 240 millisecondes avant le fin du son
+			// Loop once the sound is at about 240 ms before it ends
 			if (channel.position > storedSound.length - 240) {
 				tryLoop();
 			}
 		}
 		
-		// Essayer un loop
+		// Try to loop
 		private function tryLoop():void {
-			// S'il y a encore des loop à faire
+			// If there are still loops to be done
 			if (loopsRemaining > 1) {
-				// Réduire le montant de loops, et "recommencer" (jouer un autre instance) du son
+				// Reduce loopsRemaining and "restart" (play another instance of) the sound
 				loopsRemaining--;
 				channel = storedSound.play(0, 0, _soundTransform);
 			}
-			// Sinon,
+			// Otherwise,
 			else {
 				removeSound();
 			}
 		}
 		
-		// Voici la raison pourquoi j'ai créé cette classe: SoundChannel.stop() ne cause pas un Event.SOUND_COMPLETE
-		// Alors, quand je voulais arrêter un son avec SoundChannel.stop(), il ne serait jamais supprimé
-		// Donc, j'ai essayé de limiter le montant de loops et de mettre le volume à 0
-		// Cela fonctionnait, jusqu'à temps qu'il y avait environ 32 instances du même son qui jouait, et là aucun autre son jouait
-		// Donc, j'ai créé cette classe pour que je puisse supprimer proprement un son qui loop.
+		// Behold why I am doing this: SoundChannel.stop() doesn't trigger an Event.SOUND_COMPLETE
+		// So, when I wanted to stop a looping sound with SoundChannel.stop(), it could never be deleted
+		// So, I tried to limit the amount of loops and set the volume to 0
+		// That worked for a time, until there were around 32 instances of the same sound playing, then no other instance could be created
+		// So, I made this class so that I could properly delete looping sounds
 		public function stop():void {
-			// Mettre le volume à 0
+			// Set volume to 0
 			channel.soundTransform = new SoundTransform(0);
-			// Le prochaine tryLoop supprimera le son
+			// The next tryLoop will delete the sound
 			loopsRemaining = 0;
 		}
 		
-		// Enlever le BetterSoundChannel de l'array
+		// Remove the BetterSoundChannel from the array
 		private function removeSound():void {
-			// Enlever l'eventListener et le BetterSoundChannel de l'array
+			// Remove the eventListener too
 			removeEventListener(Event.ENTER_FRAME, checkTime);
 			playingSounds.splice(arrayID, 1);
 			for each (var otherSound:BetterSoundChannel in playingSounds) {
@@ -83,11 +81,11 @@ package scripts.utils {
 			}
 			otherSound = null;
 			arrayID = -1;
-			// GC pour libérer les ressources antérieurement occupés par cette son
+			// GC to free up the resources previously occupied by this sound
 			System.gc();
 		}
 		
-		// Fade out le son
+		// Fade out the sound
 		public function fadeOut(interval:Number = 0.0025):void {
 			new RepeatUntil(function() {
 				channel.soundTransform = new SoundTransform(channel.soundTransform.volume - interval);
@@ -99,7 +97,7 @@ package scripts.utils {
 			});
 		}
 		
-		// Le soundTransform (imiter SoundChannel.soundTransform)
+		// The soundTransform (imitates SoundChannel.soundTransform)
 		public function get soundTransform():SoundTransform {return channel.soundTransform;}
 		public function set soundTransform(value:SoundTransform):void {
 			_soundTransform = value;

@@ -1,8 +1,6 @@
 /*
-	File Name: UI.as
-	Programmeur: William Mallette
 	Date: 05-11-2021
-	Description: Le barre des boutons et d'information pendant la bataille
+	Description: The battle UI
 */
 
 package scripts.ui {
@@ -48,17 +46,17 @@ package scripts.ui {
 		private var tptext:SimpleText;
 		private var tpformat:TextFormat = new TextFormat();
 		
-		// constructor
+		// Constructor
 		public function UI() {
-			// Un array pour les boutons
+			// An array for the buttons
 			buttons = [fight, act, item, spare, defend];
 		
-			// garder cette objet dans le variable static
+			// Keep a global reference
 			instance = this;
-			// changer l'HP
+			// Change the HP
 			setHP(hp);
 			
-			// Initier les TextFormat
+			// Setup textformats
 			textformat.letterSpacing = -1;
 			textformat.leading = -5;
 			textbox.textfield.defaultTextFormat = textformat;
@@ -72,15 +70,15 @@ package scripts.ui {
 			tpformat.color = 0xFFA040;
 		}
 		
-		// changer l'HP
+		// Changes HP
 		public function setHP(n:int):void {
 			hp = n;
-			// voir HPText.setHP()
+			// Change text display
 			info.hptext.setHP(n);
-			// Changer le longueur du hpbar en accordance avec l'HP
+			// Resize hpbar
 			info.hpbar.width = Math.floor(76 * n / 160);
 			
-			// Si l'HP est 1/5 ou moins du MAXHP (160), hptext et maxhp doivent être jaune.
+			// Make text yellow when HP is less than 1/5 of maxhp
 			var colorToSet:ColorTransform;
 			if (n <= 32) {colorToSet = yellow;}
 			else {colorToSet = white;}
@@ -88,20 +86,20 @@ package scripts.ui {
 			info.maxhp.transform.colorTransform = colorToSet;
 		}
 		
-		// Changer le texte de l'UI
+		// Change UI text
 		public function setText(txt, endfunc:Function = null):void {
 			textbox.startText(txt, "defaultvoice", "default", endfunc);
 			textbox.visible = true;
 		}
 		
-		// Cacher le menu (l'info, les boutons, etc.)
+		// Hide the menu
 		public function hideMenu():void {
-			// Cacher menu et les boutons
+			// Hide menu and buttons
 			menu.visible = false;
 			for each (var btn:MovieClip in buttons) {btn.visible = false; btn.gotoAndStop("off");}
 			btn = null;
 			selectedButton = 0;
-			// Bouger l'info
+			// Move info down
 			new RepeatUntil(function(){
 				info.y += 3.5;
 				for each (btn in buttons) {btn.y += 3.5;}
@@ -110,7 +108,7 @@ package scripts.ui {
 			}, function(){if (info.y >= -32) {info.y = -32; return true;}});
 		}
 		
-		// Montrer le menu (l'inverse de hideMenu)
+		// Show the menu (just the opposite of hideMenu)
 		public function showMenu():void {
 			menu.visible = true;
 			for each (var button:MovieClip in buttons) {button.visible = true}
@@ -123,11 +121,11 @@ package scripts.ui {
 			}, function() {if (info.y <= -63) {info.y = -63; return true}});
 		}
 		
-		/////////////////////////////////////////////////////////////////// Gérer les gameState
+		/////////////////////////////////////////////////////////////////// GameState handlers
 		
-		// Commencer l'état "selectingButton"
+		// Start "selectingButton"
 		public function enterSelectingButton():void {
-			// Reset le menu et Kris si nécessaire
+			// Reset the menu and Kris
 			if (menu.visible == false) {
 				showMenu();
 			}
@@ -137,7 +135,6 @@ package scripts.ui {
 				Kris.instance.isDefending = false;
 			}
 		
-			// Plusieurs clés peuvent avoir des événements avec des noms communs, à cause que les événements fonctionnent par clé
 			Input.addEvent(37, function(){moveBtn("L")}, "selectingButton");
 			Input.addEvent(39, function(){moveBtn("R")}, "selectingButton");
 			Input.addEvent(90, openBtn, "selectingButton");
@@ -147,7 +144,7 @@ package scripts.ui {
 			updateBtns();
 		}
 		
-		// Changer quel bouton est sélectionné
+		// Changes which button is selected
 		private function moveBtn(dir:String):void {
 			oldbutton = selectedButton;
 			if (dir == "L") {
@@ -159,7 +156,7 @@ package scripts.ui {
 			updateBtns();
 		}
 		
-		// Ouvrir le menu respectif du bouton sélectionné
+		// Open the selected button's menu
 		private function openBtn():void {
 			// FIGHT/ACT/SPARE
 			if (selectedButton == 0 || selectedButton == 1 || selectedButton == 3) {Main.setState("enemySelect");}
@@ -181,15 +178,15 @@ package scripts.ui {
 			SoundLibrary.play("menuselect", 0.5);
 		}
 		
-		// Changer l'image des boutons
+		// Change the button sprite
 		private function updateBtns():void {
 			buttons[oldbutton].gotoAndStop("off");
 			buttons[selectedButton].gotoAndStop("on");
 		}
 		
-		// Terminer l'état "selectingButton"
+		// Exit "selectingButton"
 		public function exitSelectingButton():void {
-			// Enlever les event, cacher le texte
+			// Remove events and hide text
 			Input.removeEvent(37, "selectingButton");
 			Input.removeEvent(39, "selectingButton");
 			Input.removeEvent(90, "selectingButton");
@@ -197,34 +194,34 @@ package scripts.ui {
 			textbox.visible = false;
 		}
 		
-		// Commencer l'état enemySelect
+		// Start enemySelect
 		public function enterEnemySelect():void {
-			// Créer le sélecteur de Spamton
+			// Creates the MenuOption for Spamton
 			var menuoption:MenuOption = new MenuOption(-266, 19, "Spamton NEO");
 			menuoption.toggleSelection(true);
 			menuoption.effect = enemySelectTryAdvance;
 			this.addChild(menuoption);
 			menuElements.push(menuoption);
 			
-			// Image statique
+			// Static image for the meters
 			var meters_overlay:Bitmap = new Bitmap(new EnemyMeters(0,0));
 			this.addChild(meters_overlay);
 			meters_overlay.x = 100;
 			meters_overlay.y = 3;
 			menuElements.push(meters_overlay);
 			
-			// Montrer l'HP de Spamton
+			// Shows Spamton's HP
 			var spamton_hpbar:EnemyHPBar = new EnemyHPBar(Math.round(Main.screen.spamton.hp / Main.screen.spamton.maxhp * 100));
 			this.addChild(spamton_hpbar);
 			spamton_hpbar.x = 100;
 			spamton_hpbar.y = 15;
 			menuElements.push(spamton_hpbar);
 			
-			// L'option de retourner (X)
+			// X to return
 			Input.addEvent(88, function(){Main.setState("selectingButton")}, "back");
 		}
 		
-		// Fonction qui gère le progression après enemySelect
+		// Handles progression past enemySelect
 		private function enemySelectTryAdvance():void {
 			// FIGHT
 			if (selectedButton == 0) {
@@ -248,24 +245,24 @@ package scripts.ui {
 			}
 		}
 		
-		// Terminer l'état enemySelect
+		// Exit enemySelect
 		public function exitEnemySelect():void {
-			// Enlever les menuElements
+			// Remove menuElements
 			for each (var obj in menuElements) {
 				this.removeChild(obj);
 				if (obj is MenuOption) {obj.destroy();}
 			}
 			obj = null;
 			menuElements = [];
-			// Enlever l'event de retour
+			// Remove inputs
 			Input.removeEvent(88, "back");
-			// Jouer un son si on va à selectingButton
+			// Play a sound if we're going to selectingButton
 			if (Main.gameState == "selectingButton") {SoundLibrary.play("menumove", 0.5);}
 		}
 		
-		// Commencer l'état attacking
+		// Start attacking
 		public function enterAttacking():void {
-			// Créer le FightUI (voir FightUI)
+			// Setup FightUI
 			var fighting:FightUI = new FightUI();
 			fighting.x = -320;
 			fighting.y = 0;
@@ -273,17 +270,17 @@ package scripts.ui {
 			menuElements.push(fighting);
 		}
 		
-		// Terminer l'état attacking
+		// Exit attacking
 		public function exitAttacking():void {
-			// Enlever le FightUI
+			// Remove FightUI
 			menuElements[0].fadeOut();
 			menuElements = [];
 		}
 		
-		// Commencer l'état actionSelect
+		// Start actionSelect
 		public function enterActionSelect():void {
 			selectedOption = 0;
-			// Créer les options
+			// Create options
 			for each (var option:MenuOption in Main.screen.spamton.actions) {
 				option.toggleSelection(false);
 				this.addChild(option);
@@ -293,9 +290,7 @@ package scripts.ui {
 			option = null;
 			options[selectedOption].toggleSelection(true);
 			
-			// Le TextField du description de l'option
-			// Actionscript a de la difficulté à intéragir avec des fonts embarqués
-			// Alors, j'ai crée SimpleText (qui est simplement un TextField avec Determination Mono comme font)
+			// A TextField that describes the option (if applicable)
 			descriptiontext = new SimpleText();
 			descriptiontext.field.defaultTextFormat = descriptionformat;
 			descriptiontext.x = 175;
@@ -303,7 +298,7 @@ package scripts.ui {
 			this.addChild(descriptiontext);
 			menuElements.push(descriptiontext);
 			
-			// Le TextField du coût de TP
+			// A TextField that show the TP cost (if applicable)
 			tptext = new SimpleText();
 			tptext.field.defaultTextFormat = tpformat;
 			tptext.x = 175;
@@ -311,16 +306,16 @@ package scripts.ui {
 			this.addChild(tptext);
 			menuElements.push(tptext);
 			
-			// Le mouvement
+			// Movement
 			Input.addEvent(37, function(){moveOption("H")}, "actionSelect");
 			Input.addEvent(38, function(){moveOption("U")}, "actionSelect");
 			Input.addEvent(39, function(){moveOption("H")}, "actionSelect");
 			Input.addEvent(40, function(){moveOption("D")}, "actionSelect");
-			// Le retour
+			// Go back
 			Input.addEvent(88, function() {Main.setState("selectingButton")}, "back");
 		}
 		
-		// Changer quelle option est sélectionnée
+		// Change which option is selected
 		private function moveOption(dir:String):void {
 			options[selectedOption].toggleSelection(false);
 			if (dir == "H") {selectedOption = Math.min(((selectedOption + 1) % 2) + selectedOption + (-selectedOption % 2), options.length - 1);}
@@ -328,29 +323,29 @@ package scripts.ui {
 			else if (dir == "D" && selectedOption + 2 < options.length) {selectedOption += 2;}
 			options[selectedOption].toggleSelection(true);
 			
-			// Montrer/cacher le description
+			// Show/hide description
 			if (descriptiontext != null) {
 				if (options[selectedOption].description != null) {descriptiontext.field.text = options[selectedOption].description;}
 				else {descriptiontext.field.text = "";}
 			}
 			
-			// Montrer/cacher le coût
+			// Show/hide TP cost
 			if (tptext != null) {
 				if (options[selectedOption].TPCost > 0) {tptext.field.text = options[selectedOption].TPCost + "% TP";}
 				else {tptext.field.text = "";}
 			}
 		}
 		
-		// Terminer l'état actionSelect
+		// Exit actionSelect
 		public function exitActionSelect():void {
-			// Enlever les menuElements
+			// Remove menuElements
 			for each (var _obj:DisplayObject in menuElements) {this.removeChild(_obj);}
 			_obj = null;
 			menuElements = [];
-			// Reset l'array d'options donc on pourrait modifier les options plus tard
+			// Reset the options array
 			options = [];
 			
-			// Enlever les events
+			// Remove inputs
 			Input.removeEvent(37, "actionSelect");
 			Input.removeEvent(38, "actionSelect");
 			Input.removeEvent(39, "actionSelect");
@@ -358,9 +353,9 @@ package scripts.ui {
 			Input.removeEvent(88, "back");
 		}
 		
-		// Commencer l'état itemSelect
+		// Start itemSelect
 		public function enterItemSelect():void {
-			// Changer des variables dépendant de l'état précédent
+			// Change variables depending on the previous state
 			if (Main.oldstate != "itemTarget") {
 				selectedOption = 0;
 				itempage = 0;
@@ -370,27 +365,27 @@ package scripts.ui {
 				else {itempage = 1;}
 			}
 			
-			// Pour chaque item
+			// For each item
 			for (var itemno in Item.inventory) {
-				// Déterminer quelle array à utiliser
+				// Figure out which array to use
 				var targetArray:Array;
 				if (itemno < 6) {targetArray = page1;}
 				else {targetArray = page2;}
 				
-				// Calculer le coordonnée Y de l'option
+				// Calculate the vertical position of the option
 				var itemheight:Number = 19 + (Math.floor((itemno % 6)/2) * 30);
 				var item:MenuOption;
-				// Côté gauche (paire)
+				// Even numbers on the left
 				if (itemno % 2 == 0) {item = new MenuOption(-311, itemheight, Item.inventory[itemno].name);}
-				// Côté droite (impaire)
+				// Odd numbers on the right
 				else {item = new MenuOption(-87, itemheight, Item.inventory[itemno].name);}
 				
-				// Remplir des valeurs du MenuOption par rapport à celles de l'item
+				// Fill in MenuOption settings using item data
 				item.description = Item.inventory[itemno].info;
 				if (Item.inventory[itemno].targetPlayer == true) {
 					item.effect = function() {Main.setState("itemTarget");}
 				}
-				// Si l'item ne target pas un personnage, skip à actionResult
+				// If itemTarget isn't needed, skip to actionResult
 				else {
 					item.effect = function() {
 						Main.setState("actionResult");
@@ -406,26 +401,25 @@ package scripts.ui {
 								}
 							});
 						});
-						// Voir les actions au fin du section "item" dans Kris pour voir d'autre code
+						// There's code in Kris' item animation that uses the item
 						Kris.instance.gotoAndPlay("item");
 					}
 				}
 				
-				// Insérer dans l'array correct
+				// Insert to the correct array
 				targetArray.push(item);
 				allItems.push(item);
 			}
 			itemno = null;
 			
-			// Créer l'indicateur de l'inventory
+			// Make the InventoryArrow
 			if (page2.length != 0) {
 				var itemarrow:InventoryArrow = new InventoryArrow(156, 60);
 				this.addChild(itemarrow);
-				// menuElements[0]
 				menuElements.push(itemarrow);
 			}
 			
-			// Montrer le correct page
+			// Show the right page
 			if (itempage == 1) {
 				page2[selectedOption].toggleSelection(true);
 				showItemPage(page2);
@@ -436,7 +430,7 @@ package scripts.ui {
 				showItemPage(page1);
 			}
 			
-			// Le texte qui montre le description de l'item
+			// Text for the item description
 			descriptiontext = new SimpleText();
 			descriptiontext.field.defaultTextFormat = descriptionformat;
 			descriptiontext.x = 175;
@@ -445,10 +439,10 @@ package scripts.ui {
 			menuElements.push(descriptiontext);
 			descriptiontext.field.text = options[selectedOption].description;
 			
-			// Le mouvement (L, U, R, D)
+			// Movement (L, U, R, D)
 			Input.addEvent(37, function(){moveOption("H");}, "itemSelect");
 			Input.addEvent(38, function(){
-				// Changer de page
+				// Change page
 				if ((itempage == 2) && (selectedOption == 0 || selectedOption == 1)) {
 					options[selectedOption].toggleSelection(false);
 					selectedOption = ((selectedOption % 2) + 4); 
@@ -460,7 +454,7 @@ package scripts.ui {
 			}, "itemSelect");
 			Input.addEvent(39, function(){moveOption("H");}, "itemSelect");
 			Input.addEvent(40, function(){
-				// Changer de page
+				// Change page
 				if ((itempage == 1) && (selectedOption == 4 || selectedOption == 5) && (page2.length > 0)) {
 					options[selectedOption].toggleSelection(false);
 					selectedOption = (selectedOption % 2) % page2.length; 
@@ -471,22 +465,22 @@ package scripts.ui {
 				else {moveOption("D");}
 			}, "itemSelect");
 			
-			// Retourner à selectingButton
+			// Return to selectingButton
 			new Wait(2, function() {Input.addEvent(88, function() {Main.setState("selectingButton");}, "back");});
 		}
 		
-		// Montrer une page d'items
+		// Show an item page
 		private function showItemPage(items:Array):void {
-			// Changer itempage
+			// Change itempage
 			if (itempage == 1) {itempage = 2;}
 			else {itempage = 1;}
 			
-			// Effacer les options déjà montrés
+			// Hide current options
 			for each (var itemoption:MenuOption in options) {this.removeChild(itemoption);}
 			itemoption = null;
 			options = [];
 			
-			// Créer les propres items
+			// Create the right items
 			for each (var newitem:MenuOption in items) {
 				this.addChild(newitem);
 				options.push(newitem);
@@ -495,7 +489,7 @@ package scripts.ui {
 			if (descriptiontext) {descriptiontext.field.text = options[selectedOption].description;}
 		}
 		
-		// Terminer l'état itemSelect
+		// Exit itemSelect
 		public function exitItemSelect():void {
 			// Enlever les objets
 			for each (var object in menuElements) {
@@ -510,25 +504,23 @@ package scripts.ui {
 			allItems = [];
 			page1 = [];
 			page2 = [];
-			// Enlever les events
+			// Remove events
 			Input.removeEvent(37, "itemSelect");
 			Input.removeEvent(38, "itemSelect");
 			Input.removeEvent(39, "itemSelect");
 			Input.removeEvent(40, "itemSelect");
 			Input.removeEvent(88, "back");
-			
-			// Jouer un son
 			if (Main.gameState == "selectingButton") {SoundLibrary.play("menumove", 0.5);}
 		}
 		
 		
-		// Commencer l'état itemTarget
+		// Start itemTarget
 		public function enterItemTarget():void {
-			// Créer le sélecteur de Kris
+			// Kris selector
 			var krisoption:MenuOption = new MenuOption(-266, 19, "Kris");
 			krisoption.toggleSelection(true);
 			krisoption.effect = function() {
-				// Utiliser l'item
+				// Use the item
 				Main.setState("actionResult");
 				info.icon.gotoAndStop("item");
 				hideMenu();
@@ -542,13 +534,13 @@ package scripts.ui {
 						}
 					});
 				});
-				// Voir les actions au fin du section "item" dans Kris pour voir d'autre code
+				// See Kris' item animation code
 				Kris.instance.gotoAndPlay("item");
 			};
 			this.addChild(krisoption);
 			menuElements.push(krisoption);
 			
-			// Montrer l'HP de Kris
+			// Show Kris' HP
 			var kris_hpbar:EnemyHPBar = new EnemyHPBar(Math.round(hp / 160 * 100));
 			kris_hpbar.percentage.visible = false;
 			this.addChild(kris_hpbar);
@@ -557,11 +549,11 @@ package scripts.ui {
 			kris_hpbar.y = 15;
 			menuElements.push(kris_hpbar);
 			
-			// Retourner à itemSelect
+			// Return to itemSelect
 			Input.addEvent(88, function() {Main.setState("itemSelect");}, "back");
 		}
 		
-		// Terminer l'état itemTarget
+		// Exit itemTarget
 		public function exitItemTarget():void {
 			for each (var targets in menuElements) {
 				if (targets is MenuOption) {targets.destroy();}

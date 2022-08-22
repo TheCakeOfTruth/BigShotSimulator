@@ -1,8 +1,6 @@
 /*
-	File Name: RepeatUntil.as
-	Programmeur: William Mallette
 	Date: 20-11-2021
-	Description: Essentiellement "do while" mais à chaque frame au lieu de le faire dans un frame
+	Description: Basically "do while" but on every frame instead of all at once
 */
 
 package scripts.utils {
@@ -15,26 +13,26 @@ package scripts.utils {
 		private var endCondition:Function;
 		private var arrayIndex:uint;
 		
-		// constructor
+		// Constructor
 		public function RepeatUntil(func:Function, end:Function) {
-			// Stocker les méthodes
+			// Stock the functions
 			action = func;
 			endCondition = end;
 			
-			// Ajouter à l'array et créer un eventListener
+			// Add to the array and add an eventListener
 			arrayIndex = queue.push(this) - 1;
 			this.addEventListener(Event.ENTER_FRAME, update, false, 0, true);
 		}
 		
 		// update
 		private function update(e:Event):void {
-			// Exécute action à chaque frame jusqu'à temps que endCondition return true
+			// Run action every frame until endCondition returns true
 			if (endCondition.call() != true) {action.call();}
-			// Supprimer l'objet RepeatUntil lorsqu'elle est terminée
+			// Delete the object when finished
 			else {removeFromQueue();}
 		}
 		
-		// Supprimer l'objet
+		// Delete the object
 		private function removeFromQueue():void {
 			removeEventListener(Event.ENTER_FRAME, update);
 			for each (var obj:RepeatUntil in queue) {

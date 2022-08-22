@@ -1,8 +1,6 @@
 /*
-	File Name: FightUI.as
-	Programmeur: William Mallette
 	Date: 21-11-2021
-	Description: L'interface d'attaque
+	Description: When you attack
 */
 
 package scripts.ui {
@@ -22,13 +20,13 @@ package scripts.ui {
 		private var strikeTime:Number;
 		private var canMoveBar:Boolean = true;
 		
-		// constructor
+		// Constructor
 		public function FightUI() {
 			addEventListener(Event.ENTER_FRAME, update, false, 0, true);
 			new Wait(2, function() {Input.addEvent(90, strike, "attack");});
 		}
 		
-		// bouger le bar, si on a manqué, forcer un strike
+		// Move the bar, force an attack if it goes too far
 		private function update(e:Event):void {
 			if (canMoveBar) {
 				bar.x -= 4;
@@ -36,38 +34,38 @@ package scripts.ui {
 			}
 		}
 		
-		// faire l'attaque
+		// Do the attack
 		private function strike():void {
-			// Enregistrer le position du bar au moment du strike
+			// Hold on to the current position of the bar
 			strikeTime = bar.x;
 			
-			// S'il y a un miss, faire le bar continuer au bord et fade au noir
-			// Autrement, augmenter scaleY et arrêter le mouvement
+			// If you miss, fade to black
+			// Otherwise, stop moving and expand height
 			if (strikeTime != 68) {
 				new RepeatUntil(function() {bar.scaleY += 0.05}, function() {if (bar.scaleY >= 1.35) {return true;}});
 				canMoveBar = false;
 			}
 			new RepeatUntil(function() {bar.alpha -= 0.05}, function() {if (bar.alpha <= 0) {removeChild(bar); return true;}});
 			
-			// Prévenir un attaque double
+			// Prevent a double attack
 			Input.removeEvent(90, "attack");
 			
-			// Un strike parfait
+			// Crit
 			if (strikeTime == 84) {
-				// Faire le bar jaune et jouer un autre son qui indique un strike parfait
+				// Yellow bar and different sound
 				bar.transform.colorTransform = new ColorTransform(1, 1, 0);
 				SoundLibrary.play("critswing", 0.5);
 			}
 			
-			// Jouer le son
+			// Sound
 			SoundLibrary.play("swing", 0.5);
 			
-			// Animer Kris et endommager Spamton
+			// Animate and damage
 			Kris.instance.gotoAndPlay("fight");
 			Main.screen.spamton.damage(calculateDamage());
 		}
 		
-		// Calculer le dommage, voir ce page: https://deltarune.fandom.com/wiki/Stats#Damage
+		// Calculates damage, see: https://deltarune.fandom.com/wiki/Stats#Damage
 		private function calculateDamage():int {
 			var accuracy:int;
 			if (strikeTime == 84) {accuracy = 150;}
@@ -75,20 +73,20 @@ package scripts.ui {
 			else if (strikeTime == 92 || strikeTime == 76) {accuracy = 110;}
 			else if (strikeTime == 68) {accuracy = 0;}
 			else {accuracy = Math.abs(100 - (Math.abs(strikeTime - 84) / 4 * 2))}
-			// Augmenter le TP
+			// Increase TP
 			TPMeter.instance.addTP(accuracy / 10);
 			return Math.round(((Kris.instance.calculateAttack() * accuracy) / 20) - 3 * Main.screen.spamton.defense);
 		}
 		
-		// Commencer à fader le FightUI
+		// Start to fade the FightUI
 		public function fadeOut():void {
 			new RepeatUntil(reduceAlpha, tryRemove);
 		}
 		
-		// Réduire this.alpha
+		// Reduce this.alpha
 		private function reduceAlpha():void {this.alpha -= 0.05;}
 		
-		// endCondition pour fadeOut, enlève l'objet quand this.alpha == 0
+		// endCondition for fadeOut, removes it when this.alpha == 0
 		private function tryRemove() {
 			if (this.alpha <= 0) {
 				remove();

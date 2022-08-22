@@ -1,8 +1,6 @@
 /*
-	File Name: Input.as
-	Programmeur: William Mallette
 	Date: 17-11-2021
-	Description: Une meilleure système d'input, utilisant la magie des Dictionary
+	Description: Better input system
 */
 
 package scripts.utils {
@@ -10,7 +8,7 @@ package scripts.utils {
 	import flash.events.KeyboardEvent;
 	import flash.utils.Dictionary;
 	
-	/* Quelques keyCodes importants
+	/* Important keyCodes
 		ARROW KEYS
 		L: 37
 		U: 38
@@ -23,35 +21,32 @@ package scripts.utils {
 	*/
 	
 	public class Input extends Sprite {
-		// Référence global pour garder l'objet actif
+		// Global reference to keep the object active
 		public static var handler:Input;
-		// Les dictionnaires! J'ai appris à propos de cette classe magnifique ici (le documentation d'actionscript):
-		// https://help.adobe.com/en_US/as3/dev/WS5b3ccc516d4fbf351e63e3d118a9b90204-7eea.html
-		// https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/utils/Dictionary.html
 		private static var keys:Dictionary = new Dictionary();
 		private static var eventDict:Dictionary = new Dictionary();
 	
-		// constructor, faut seulement être exécuté au commencement du jeu
+		// Constructor, run only once
 		public function Input() {
 			handler = this;
-			// Ajouter les eventListeners
+			// Add eventListeners
 			Main.screen.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDown, false, 0, true);
 			Main.screen.stage.addEventListener(KeyboardEvent.KEY_UP, keyUp, false, 0, true);
 		}
 		
 		// KEY_DOWN
 		private function keyDown(e:KeyboardEvent):void {
-			// Effectuer un événement seulement si on ne touche pas déjà le clé
-			// KeyboardEvent.KEY_DOWN s'effectue plusieurs fois quand on maintenez le clé enfoncé, qu'on veut pas
-			// Vérifie aussi que le clé touché a un dictionnaire d'event associé.
+			// Run an event only if we weren't already touching the key
+			// KeyboardEvent.KEY_DOWN triggers multiple times when we hold the key, which we don't want
+			// Also make sure the pressed key has an associated event dictionnary 
 			if (keys[e.keyCode] != true && eventDict[e.keyCode] is Dictionary) {
-				// Pour chaque event dans le eventDict du clé, effectue la méthode stocké
+				// For every event in the eventDict for the key, run the stored function
 				for each (var func:Function in eventDict[e.keyCode]) {
 					func.call();
 				}
 				func = null;
 			}
-			// Marque le clé comme étant touché
+			// Mark the key as being pressed
 			keys[e.keyCode] = true;
 			
 			// DEBUG
@@ -60,27 +55,27 @@ package scripts.utils {
 		
 		// KEY_UP
 		private function keyUp(e:KeyboardEvent):void {
-			// Marque le clé comme n'étant pas touché
+			// Mark the key as no longer being pressed
 			keys[e.keyCode] = false;
 		}
 		
-		// Retourne l'état du clé spécifié
+		// Returns the state of the specified key
 		public static function getKey(code:int):Boolean {
 			return keys[code];
 		}
 		
-		// Ajouter un event au clé qui s'exécutera lorsque le clé est touché!
+		// Add an event to the key
 		public static function addEvent(code:int, event:Function, keyname:String):void {
-			// Initier le dictionnaire d'événements pour le clé si besoin
+			// Initiate the dictionnary for that key if needed
 			if (eventDict[code] == null) {eventDict[code] = new Dictionary();}
-			// Ajouter la méthode désiré à la clé désiré
+			// Add the function to that key
 			eventDict[code][keyname] = event;
 			
 			// DEBUG
 			//trace("Added event " + keyname + " to " + code);
 		}
 		
-		// Enlever un événement spécifié du dictionnaire d'event d'un clé
+		// Remove a specified event from the dictionnary of a specified key
 		public static function removeEvent(code:int, keyname:String):void {
 			if (eventDict[code] is Dictionary) {
 				delete eventDict[code][keyname];
@@ -90,7 +85,7 @@ package scripts.utils {
 			//trace("Removed event " + keyname + " from " + code);
 		}
 		
-		// Efface tous les events
+		// Erase all events
 		public static function clearEvents():void {
 			eventDict = new Dictionary();
 		}

@@ -1,8 +1,6 @@
 /*
-	File Name: MenuOption.as
-	Programmeur: William Mallette
 	Date: 18-11-2021
-	Description: Les options de menu
+	Description: Options in the menu
 */
 
 package scripts.ui {
@@ -26,48 +24,48 @@ package scripts.ui {
 		
 		private var eventID:String;
 		
-		// constructor
+		// Constructor
 		public function MenuOption(x:Number, y:Number, _text:String) {
-			// Cacher le soul
+			// Hide the soul
 			toggleSelection(false);
-			// Créer un référence unique pour l'event (voir Input)
+			// Unique reference for the input handler
 			eventID = "MenuOption-" + String(Math.random());
-			// Fonction vide (à être rédéfini)
+			// Empty function to be redefined elsewhere
 			effect = function() {};
-			// Positionner
+			// Positioning
 			this.x = x;
 			this.y = y;
-			// Format du texte
+			// Text format
 			var format:TextFormat = new TextFormat();
 			format.letterSpacing = -2;
 			txt.defaultTextFormat = format;
 			txt.htmlText = _text;
 			
-			// Les eventListeners
+			// EventListeners
 			this.addEventListener(Event.ADDED_TO_STAGE, activateFunction, false, 0, true);
 			this.addEventListener(Event.REMOVED_FROM_STAGE, deactivateFunction, false, 0, true);
 		}
-		
-		// Permettre l'activation quand l'objet est sur le stage
+
+		// Let it be active when it's on screen
 		private function activateFunction(e:Event):void {
-			// Changer le couleur du texte dépendant du coût de TP
+			// Text color depends on current TP
 			if (!checkAffordability()) {txt.textColor = 0x808080;}
 			else {txt.textColor = 0xFFFFFF;}
-			// Ajouter un event au clé Z
+			// Add an event to the Z key
 			new Wait(2, function() {Input.addEvent(90, selectOption, eventID);});
 		}
 		
-		// Enlever l'event du clé Z
+		// Remove the event from the Z key
 		private function deactivateFunction(e:Event):void {
 			Input.removeEvent(90, eventID);
 		}
 		
-		// Montrer/cacher le soul
+		// Show/hide the soul
 		public function toggleSelection(bool:Boolean):void {
 			soul.visible = bool;
 		}
 		
-		// Vérifier si l'option est sélectionné et on a assez de TP, et jouer un son et effectuer la méthode stockée
+		// Check that the option is selected and we have enough TP, play a sound and play the function
 		public function selectOption():void {
 			if (this.parent != null && soul.visible == true && checkAffordability()) {
 				SoundLibrary.play("menuselect", 0.5);
@@ -75,13 +73,13 @@ package scripts.ui {
 			}
 		}
 		
-		// Vérifier si on a assez de TP (en %)
+		// Make sure there's enough TP (in %)
 		private function checkAffordability():Boolean {
 			if (100 * TPMeter.instance.tp / 250 < TPCost) {return false;}
 			else {return true;}
 		}
 		
-		// Créer l'icone (img) et ajouter-la au MenuOption
+		// Create the icon and add it to the MenuOption
 		public function createIcon(img:BitmapData):void {
 			iconEnabled = true;
 			icon = new Bitmap(img);
@@ -90,7 +88,7 @@ package scripts.ui {
 			this.addChild(icon);
 		}
 		
-		// Détruire le MenuOption
+		// Destroy the MenuOption
 		public function destroy():void {
 			if (iconEnabled) {this.removeChild(icon); icon = null;}
 			deactivateFunction(null);
