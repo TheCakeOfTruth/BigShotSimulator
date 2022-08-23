@@ -63,7 +63,7 @@ package scripts.effects {
 				if (globalCoords2.y >= 375) {q2.y -= 360;}
 			}
 			
-			trace(IntFront.width + " " + IntFront.height);
+			//trace(IntFront.width + " " + IntFront.height);
 		}
 	}
 }

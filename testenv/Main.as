@@ -112,7 +112,7 @@ package {
 					var newtime:Number = (getTimer() - _time) / 1000;
 					frames++;
 					if (newtime > 1) {
-						fpsText.text = "FPS: " + String(Math.floor(frames/newtime) + "       Memory: " + System.totalMemory);
+						fpsText.text = "FPS: " + String(Math.round(frames/newtime) + "       Memory: " + System.totalMemory);
 						_time = getTimer();
 						frames = 0;
 					}

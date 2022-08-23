@@ -54,7 +54,7 @@ package scripts.attacks {
 		// Start intro dialogue
 		private function startDialogue():void {
 			// Stop his usual head animation
-			Main.screen.spamton.head.gotoAndStop("default_headswitch");
+			Main.screen.spamton.head.gotoAndStop("default_HeadSwitch");
 			
 			// Create a DialogueBubble which runs startAttack() when it ends
 			var bubble:DialogueBubble = new DialogueBubble(Main.dialogue.spamNeoPhone1, "voice_sneo", startAttack);
