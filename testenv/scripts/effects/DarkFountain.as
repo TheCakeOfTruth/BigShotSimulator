@@ -6,8 +6,10 @@
 package scripts.effects {
 	import flash.display.MovieClip;
 	import flash.geom.Point;
+	import flash.geom.ColorTransform;
 	import scripts.utils.GlobalListener;
 	import scripts.utils.BetterRound;
+	import scripts.utils.HSVToRGB;
 	
 	public class DarkFountain extends MovieClip {
 		private var timer:int = 0;
@@ -63,7 +65,24 @@ package scripts.effects {
 				if (globalCoords2.y >= 375) {q2.y -= 360;}
 			}
 			
+			// Coloration
+			var h:Number = (timer / 4) % 360;
+			var s:Number = (160 + (60 * Math.sin(timer / 60))) / 256;
+			var v:Number = 1;
+			
+			//this.transform.colorTransform = mergeColor(this.transform.colorTransform, HSVToRGB(h, s, v));
+			this.transform.colorTransform = HSVToRGB(h, s, v);
+			
 			//trace(IntFront.width + " " + IntFront.height);
+		}
+		
+		// Returns a color averaged between two
+		private function mergeColor(c1:ColorTransform, c2:ColorTransform):ColorTransform {
+			var newr:Number = (c1.redMultiplier + c2.redMultiplier) / 2;
+			var newg:Number = (c1.greenMultiplier + c2.greenMultiplier) / 2;
+			var newb:Number = (c1.blueMultiplier + c2.blueMultiplier) / 2;
+			
+			return new ColorTransform(newr, newg, newb);
 		}
 	}
 }
