@@ -5,6 +5,7 @@
 
 package scripts {
 	import flash.display.Sprite;
+	import flash.display.MovieClip;
 	import flash.display.BitmapData;
 	import flash.display.Bitmap;
 	import flash.events.Event;
@@ -18,7 +19,7 @@ package scripts {
 	import scripts.utils.BetterSoundChannel;
 	import scripts.utils.GlobalListener;
 	
-	public class Player extends Sprite {
+	public class Player extends MovieClip {
 		// Static stuff
 		public static var instance:Player;
 		public static var shots:Array = [];
@@ -43,10 +44,17 @@ package scripts {
 		// Sounds
 		private var chargesound_channel:BetterSoundChannel;
 		
+		private var balls:Array;
+		private var b:String;
+		private var ballDistance:Number = 27;
+		
 		// Constructor
 		public function Player() {
 			// Keep a global reference
 			Player.instance = this;
+			
+			// Get balls
+			balls = [ball1, ball2, ball3, ball4];
 			
 			// Add an eventListener
 			eventID = "Player-" + String(Math.random());
@@ -76,11 +84,13 @@ package scripts {
 			grazeBox.push(new Point(this.x+12.5, this.y+12.5));
 			
 			// Bitmap setup for changing the image
+			/*
 			this.removeChildAt(1);
 			this.addChild(bmpObj);
 			swapImg(yellowHeart);
 			bmpObj.x -= bmpObj.bitmapData.width/2;
 			bmpObj.y -= bmpObj.bitmapData.height/2;
+			*/
 			
 			// Remove events when the object is destroyed
 			this.addEventListener(Event.REMOVED_FROM_STAGE, cleanup, false, 0, true);
@@ -107,7 +117,8 @@ package scripts {
 				createShot();
 			}
 			// Reset the image
-			swapImg(yellowHeart);
+			//swapImg(yellowHeart);
+			gotoAndStop("yellow");
 		}
 		
 		// Function to create shots
@@ -122,18 +133,52 @@ package scripts {
 			if (takeInput && Input.getKey(90) == true) {zTimer++;}
 			// Start sound and change image
 			if (zTimer == 20) {chargesound_channel = SoundLibrary.play("chargesound", 0, int.MAX_VALUE);}
-			else if (zTimer == 45) {swapImg(whiteHeart);}
+			else if (zTimer == 45) {
+				gotoAndStop("white");
+				for (b in balls) {balls[b].alpha = 0;}
+				glow.visible = true;
+				glow2.visible = true;
+			}
 			// Gradually increase volume
 			if (chargesound_channel) {
 				if (chargesound_channel.soundTransform.volume < 0.5 && zTimer >= 5) {
 					chargesound_channel.soundTransform = new SoundTransform(Math.pow((zTimer - 5) / 45, 2)/2);
 				}
 			}
+			
+			// Animate balls and glow
+			if (zTimer >= 10 && zTimer < 45) {
+				if (ballDistance > 0) {ballDistance -= 27/35;}
+				for (b in balls) {
+					if (balls[b].alpha != 1) {balls[b].alpha += 0.05;}
+					balls[b].x = ballDistance * Math.cos((zTimer / 10) + (Math.PI / 2) * int(b));
+					balls[b].y = ballDistance * Math.sin((zTimer / 10) + (Math.PI / 2) * int(b));
+				}
+			}
+			
+			if (glow.visible) {
+				glow.scaleX = 1.75 + 0.1 * Math.cos(zTimer/10);
+				glow.scaleY = 1.75 + 0.1 * Math.cos(zTimer/10);
+				
+				glow2.scaleX = 1.5 + 0.2 * Math.cos(zTimer/10);
+				glow2.scaleY = 1.5 + 0.2 * Math.cos(zTimer/10);
+			}
+			
 			// Release Z and fire the shot(s)
 			if (takeInput && Input.getKey(90) == false && zTimer > 0) {
 				fireShots(zTimer); 
 				zTimer = 0; 
 				if (chargesound_channel) {chargesound_channel.stop(); chargesound_channel = null;}
+				
+				// Undo ball animation
+				ballDistance = 27;
+				for (b in balls) {
+					balls[b].alpha = 0;
+					balls[b].x = 27 * Math.cos((Math.PI / 2) * int(b));
+					balls[b].y = 27 * Math.sin((Math.PI / 2) * int(b));
+				}
+				glow.visible = false;
+				glow2.visible = false;
 			}
 		
 			// Movement
@@ -163,12 +208,14 @@ package scripts {
 			// Handle damage and immunity
 			if (iFrames > 0) {
 				iFrames--;
+				/*
 				if (bmpObj.bitmapData != whiteHeart) {
 					if (iFrames % 10 == 0) {
 						if (bmpObj.bitmapData == yellowHeart) {swapImg(yellowdmg);}
 						else {swapImg(yellowHeart);}
 					}
 				}
+				*/
 			}
 		}
 		
@@ -203,9 +250,11 @@ package scripts {
 		}
 		
 		// Change image
+		/*
 		private function swapImg(newimg:BitmapData):void {
 			bmpObj.bitmapData = newimg;
 		}
+		*/
 		
 		// Play graze sound and show outline
 		public function graze():void {
@@ -250,6 +299,7 @@ package scripts {
 			else {
 				// Activate immunity
 				instance.iFrames = 60;
+				instance.gotoAndPlay("hurt");
 				// Cancel graze
 				for each (var b:Bullet in instance.grazingBullets) {
 					instance.grazingBullets.splice(0, 1);

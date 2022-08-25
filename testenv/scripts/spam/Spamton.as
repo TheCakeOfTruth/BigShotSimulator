@@ -49,7 +49,8 @@ package scripts.spam {
 			new Wait(1, function() {checktext = Main.dialogue.spamNeoCheck1;});
 			// His parts and his attacks
 			parts = [rarm, rwing, rleg, lleg, body, larm, lwing, head, body];
-			attacks = [FlyingHeads, RollerCoaster, HeartAttack, PipisForYou];
+			//attacks = [FlyingHeads, RollerCoaster, HeartAttack, PipisForYou];
+			attacks = [TestAttack];
 			// Begin the animation
 			setAnimMode("defaultIdle");
 			head.enableRotation = false;
