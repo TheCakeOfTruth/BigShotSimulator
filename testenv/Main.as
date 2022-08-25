@@ -306,9 +306,10 @@ package {
 		// From the menu, start the game
 		public static function startGame():void {
 			bgm.stop();
-			bgm = SoundLibrary.play("mus_bigshot", 0.3, int.MAX_VALUE);
+			bgm = SoundLibrary.play("mus_bigshot", 0.3, int.MAX_VALUE); // 0.3
 			screen.changeMenu("none");
 			screen.gotoAndStop(1, "Fight");
+			screen.spamton = screen.sc.spamton;
 			setupInventory();
 		}
 		

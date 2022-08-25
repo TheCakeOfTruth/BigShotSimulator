@@ -17,7 +17,7 @@ package scripts.effects {
 		private var backQs:Array;
 		
 		// Constructor
-		public function DarkFountain():void {
+		public function DarkFountain() {
 			GlobalListener.addEvent(update, "UpdateFountain");
 			frontQs = [IntFront.Q1, IntFront.Q2, IntFront.Q3, IntFront.Q4, IntFront.Q5, IntFront.Q6];
 			backQs = [IntBack.Q1, IntBack.Q2, IntBack.Q3, IntBack.Q4, IntBack.Q5, IntBack.Q6];

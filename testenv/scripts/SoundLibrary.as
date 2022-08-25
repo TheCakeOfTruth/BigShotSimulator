@@ -45,6 +45,7 @@ package scripts {
 			dict["laugh"] = new SpamtonLaugh();
 			dict["switch"] = new SwitchNoise();
 			dict["iceshock"] = new IceShockSound();
+			dict["carhonk"] = new CarHonkSound();
 		}
 		
 		// Play a sound

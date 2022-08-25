@@ -6,6 +6,7 @@
 package scripts.spam {
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.geom.Point;
 	import scripts.utils.Wait;
 	import scripts.utils.RepeatUntil;
 	import scripts.utils.GlobalListener;
@@ -17,12 +18,14 @@ package scripts.spam {
 		public var maxRotation:Number = 0;
 		public var rotSpeed:Number = 0.0625;
 		public var offset:Number = 0;
+		public var initialPos:Point;
 		
 		private var timer:Number = 0;
 		private var eventID:String;
 		
 		// Constructor
 		public function SpamtonPart() {
+			initialPos = new Point(this.x, this.y);
 			eventID = "SpamtonPart-" + String(Math.random());
 			GlobalListener.addEvent(update, eventID);
 		}
@@ -88,13 +91,19 @@ package scripts.spam {
 		}
 		
 		// Shake things up
-		public function shake(intensity:Number = 2) {
+		public function shake(intensity:Number = 2, isHead:Boolean = false):void {
 			// Two random numbers
 			var val_x:Number = RandomRange(-intensity, intensity);
 			var val_y:Number = RandomRange(-intensity, intensity);
 			// Displace
-			this.getChildAt(0).x = val_x;
-			this.getChildAt(0).y = val_y;
+			if (isHead == false) {
+				this.getChildAt(0).x = val_x;
+				this.getChildAt(0).y = val_y;
+			}
+			else {
+				this.x = initialPos.x + val_x;
+				this.y = initialPos.y + val_y;
+			}
 		}
 		
 		// remove the EventListener

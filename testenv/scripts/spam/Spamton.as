@@ -8,6 +8,7 @@ package scripts.spam {
 	import flash.display.Sprite;
 	import flash.display.Bitmap;
 	import flash.media.SoundTransform;
+	import flash.geom.ColorTransform;
 	import scripts.SoundLibrary;
 	import scripts.Kris;
 	import scripts.Player;
@@ -23,9 +24,11 @@ package scripts.spam {
 	import scripts.utils.XMLToDialogue;
 	import scripts.utils.RandomRange;
 	import scripts.utils.BetterSoundChannel;
+	import scripts.effects.SmokeSpawner;
 	import scripts.attacks.*;
 	
 	public class Spamton extends MovieClip {
+		public var container:SpamtonContainer;
 		public var parts:Array;
 		public var attacks:Array;
 		private var attackID:int = -1;
@@ -39,13 +42,14 @@ package scripts.spam {
 		public var nextDialogue:Array;
 		public var bluelightMode:Boolean = false;
 		public var helpCount:int = 0;
+		public var enraged:Boolean = false;
 		
 		private var checktext:XMLList;
 		private var dialogueChain:int = 0;
 		
 	
 		// Constructor
-		public function Spamton() {
+		public function Spamton() {		
 			new Wait(1, function() {checktext = Main.dialogue.spamNeoCheck1;});
 			// His parts and his attacks
 			parts = [rarm, rwing, rleg, lleg, body, larm, lwing, head, body];
@@ -193,8 +197,8 @@ package scripts.spam {
 		public function damage(n:int, doSound:Boolean = true, resetAnim:Boolean = true, mirrorSlash:Boolean = false):void {
 			// Slash effect
 			var slash:DamageSlash = new DamageSlash();
-			slash.x = this.x + 20;
-			slash.y = this.y - 100;
+			slash.x = container.x + 20;
+			slash.y = container.y - 100;
 			slash.scaleX = 2;
 			slash.scaleY = 2;
 			if (mirrorSlash) {
@@ -220,7 +224,7 @@ package scripts.spam {
 				if (bluelightMode) {n = RandomRange(5, 11, 0);}
 				
 				if (doSound) {SoundLibrary.play("enemydamage", 0.5);}
-				new DamageNumber(n, Main.screen.spamton, "blue", -40); 
+				new DamageNumber(n, Main.screen.spamton.container, "blue", -40); 
 				shake(); 
 				UI.instance.info.icon.gotoAndStop("head");
 				hp -= n;
@@ -241,6 +245,47 @@ package scripts.spam {
 							if (!mirrorSlash) {Main.setState("enemyDialogue");}
 						});
 					}
+				}
+			});
+		}
+		
+		// Enrage
+		public function enrage():void {
+			enraged = true;
+			var breenMult:Number = 1;
+			var honkTimer:int = 0;
+			new RepeatUntil(function() {
+				// Fade head to red
+				breenMult -= 0.025;
+				head.transform.colorTransform = new ColorTransform(1, breenMult, breenMult);
+			}, function() {
+				if (breenMult <= 0) {
+					// Add smoke & start honking 
+					container.children["smoker"] = new SmokeSpawner();
+					container.children["smoker"].x = container.width / 2 - 10;
+					container.children["smoker"].y = -container.height / 2;
+					container.addChildAt(container.children["smoker"], 0);
+					SoundLibrary.play("carhonk", 0.6);
+					new RepeatUntil(function() {
+						honkTimer++;
+						if (honkTimer <= 30) {
+							head.scaleX = -0.5 * Math.cos((Math.PI / 15) * honkTimer) + 1.5;
+							head.scaleY = -0.5 * Math.cos((Math.PI / 15) * honkTimer) + 1.5;
+						}
+						else {
+							head.scaleX = -0.5 * Math.cos((Math.PI / 27) * (honkTimer - 30)) + 1.5;
+							head.scaleY = -0.5 * Math.cos((Math.PI / 27) * (honkTimer - 30)) + 1.5;
+						}
+						head.shake(3, true);
+					}, function() {
+						if (honkTimer == 84) {
+							head.x = 28;
+							head.y = -57;
+							return true;
+						}
+					});
+				
+					return true;
 				}
 			});
 		}
@@ -386,6 +431,7 @@ package scripts.spam {
 			parts = [];
 			// Remove from the screen
 			this.parent.removeChild(this);
+			if (container) {delete container.children["spamton"];}
 		}
 	}
 }

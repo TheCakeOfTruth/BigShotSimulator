@@ -11,7 +11,7 @@ package scripts.attacks {
 	
 	public class TestAttack extends EnemyWave {
 		// Constructor
-		public function TestAttack():void {
+		public function TestAttack() {
 			// Parameters
 			waveTimer = int.MAX_VALUE;
 			arenaConfig = {x: 301, y: 171, width: 240, height: 112};

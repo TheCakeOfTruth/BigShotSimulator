@@ -11,6 +11,7 @@ package scripts {
 	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.media.SoundTransform;
+	import scripts.spam.Spamton;
 	import scripts.ui.UI;
 	import scripts.ui.TPMeter;
 	import scripts.utils.Wait;
@@ -23,6 +24,7 @@ package scripts {
 		// Static stuff
 		public static var instance:Player;
 		public static var shots:Array = [];
+		public static var funnycheat:int = 0;
 		
 		// Inputs and collision
 		public var takeInput:Boolean = true;
@@ -44,9 +46,10 @@ package scripts {
 		// Sounds
 		private var chargesound_channel:BetterSoundChannel;
 		
+		// Charging animation
 		private var balls:Array;
 		private var b:String;
-		private var ballDistance:Number = 27;
+		private var ballDistance:Number = 35;
 		
 		// Constructor
 		public function Player() {
@@ -94,6 +97,10 @@ package scripts {
 			
 			// Remove events when the object is destroyed
 			this.addEventListener(Event.REMOVED_FROM_STAGE, cleanup, false, 0, true);
+			
+			// Add the release event for firing shots
+			Input.addUpEvent(90, onZRelease, "tryFireShots");
+			Input.addUpEvent(13, onZRelease, "tryFireShots");
 		}
 		
 		// zTimer influences the type(s) of shots fired
@@ -116,9 +123,6 @@ package scripts {
 				// 1 Shot
 				createShot();
 			}
-			// Reset the image
-			//swapImg(yellowHeart);
-			gotoAndStop("yellow");
 		}
 		
 		// Function to create shots
@@ -130,15 +134,9 @@ package scripts {
 		// Each frame
 		private function update():void {
 			// Charge big shots
-			if (takeInput && Input.getKey(90) == true) {zTimer++;}
-			// Start sound and change image
+			if (takeInput && (Input.getKey(90) == true || Input.getKey(13) == true)) {zTimer++;}
+			// Start sound
 			if (zTimer == 20) {chargesound_channel = SoundLibrary.play("chargesound", 0, int.MAX_VALUE);}
-			else if (zTimer == 45) {
-				gotoAndStop("white");
-				for (b in balls) {balls[b].alpha = 0;}
-				glow.visible = true;
-				glow2.visible = true;
-			}
 			// Gradually increase volume
 			if (chargesound_channel) {
 				if (chargesound_channel.soundTransform.volume < 0.5 && zTimer >= 5) {
@@ -146,9 +144,9 @@ package scripts {
 				}
 			}
 			
-			// Animate balls and glow
+			// Handle animation for charging
 			if (zTimer >= 10 && zTimer < 45) {
-				if (ballDistance > 0) {ballDistance -= 27/35;}
+				if (ballDistance > 0) {ballDistance--;}
 				for (b in balls) {
 					if (balls[b].alpha != 1) {balls[b].alpha += 0.05;}
 					balls[b].x = ballDistance * Math.cos((zTimer / 10) + (Math.PI / 2) * int(b));
@@ -156,29 +154,22 @@ package scripts {
 				}
 			}
 			
-			if (glow.visible) {
-				glow.scaleX = 1.75 + 0.1 * Math.cos(zTimer/10);
-				glow.scaleY = 1.75 + 0.1 * Math.cos(zTimer/10);
-				
-				glow2.scaleX = 1.5 + 0.2 * Math.cos(zTimer/10);
-				glow2.scaleY = 1.5 + 0.2 * Math.cos(zTimer/10);
+			if (zTimer == 40) {
+				glow.visible = true;
+				glow2.visible = true;
 			}
 			
-			// Release Z and fire the shot(s)
-			if (takeInput && Input.getKey(90) == false && zTimer > 0) {
-				fireShots(zTimer); 
-				zTimer = 0; 
-				if (chargesound_channel) {chargesound_channel.stop(); chargesound_channel = null;}
+			if (zTimer == 45) {
+				gotoAndStop("white");
+				for (b in balls) {balls[b].alpha = 0;}
+			}
+			
+			if (glow.visible) {
+				glow.scaleX = 2 + 0.2 * Math.cos(zTimer/7.5);
+				glow.scaleY = 2 + 0.2 * Math.cos(zTimer/7.5);
 				
-				// Undo ball animation
-				ballDistance = 27;
-				for (b in balls) {
-					balls[b].alpha = 0;
-					balls[b].x = 27 * Math.cos((Math.PI / 2) * int(b));
-					balls[b].y = 27 * Math.sin((Math.PI / 2) * int(b));
-				}
-				glow.visible = false;
-				glow2.visible = false;
+				glow2.scaleX = 1.65 - 0.2 * Math.cos(zTimer/5);
+				glow2.scaleY = 1.65 - 0.2 * Math.cos(zTimer/5);
 			}
 		
 			// Movement
@@ -216,6 +207,37 @@ package scripts {
 					}
 				}
 				*/
+			}
+		}
+		
+		// Function triggered when Z (or ENTER) gets released
+		private function onZRelease():void {
+			// Release Z and fire the shot(s)
+			if (takeInput && zTimer > 0) {
+				fireShots(zTimer); 
+				if (chargesound_channel) {chargesound_channel.stop(); chargesound_channel = null;}
+				
+				if (Input.getKey(90) == false && Input.getKey(13) == false) {
+					// Reset the image
+					gotoAndStop("yellow");
+					
+					// Undo charging animation
+					zTimer = 0; 
+					ballDistance = 35;
+					for (b in balls) {
+						balls[b].alpha = 0;
+						balls[b].x = 35 * Math.cos((Math.PI / 2) * int(b));
+						balls[b].y = 35 * Math.sin((Math.PI / 2) * int(b));
+					}
+					glow.visible = false;
+					glow2.visible = false;
+				}
+				else {
+					// Fuck you
+					funnycheat++;
+					if (funnycheat == 6) {Main.screen.spamton.enrage();}
+					Main.screen.spamton.attack = Math.min(Main.screen.spamton.attack + 0.5 * funnycheat, 26);
+				}
 			}
 		}
 		
@@ -299,7 +321,9 @@ package scripts {
 			else {
 				// Activate immunity
 				instance.iFrames = 60;
-				instance.gotoAndPlay("hurt");
+				if (instance.currentLabel != "white") {
+					instance.gotoAndPlay("hurt");
+				}
 				// Cancel graze
 				for each (var b:Bullet in instance.grazingBullets) {
 					instance.grazingBullets.splice(0, 1);
@@ -336,6 +360,8 @@ package scripts {
 		
 		// Remove everything
 		private function cleanup(e:Event):void {
+			Input.removeUpEvent(90, "tryFireShots");
+			Input.removeUpEvent(13, "tryFireShots");
 			if (chargesound_channel) {chargesound_channel.stop(); chargesound_channel = null;}
 			GlobalListener.removeEvent(eventID);
 			this.removeEventListener(Event.REMOVED_FROM_STAGE, cleanup);

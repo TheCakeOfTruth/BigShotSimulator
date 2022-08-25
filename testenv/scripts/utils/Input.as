@@ -18,6 +18,8 @@ package scripts.utils {
 		Z: 90
 		X: 88
 		C: 67
+		
+		ENTER: 13
 	*/
 	
 	public class Input extends Sprite {
@@ -25,6 +27,7 @@ package scripts.utils {
 		public static var handler:Input;
 		private static var keys:Dictionary = new Dictionary();
 		private static var eventDict:Dictionary = new Dictionary();
+		private static var upEventDict:Dictionary = new Dictionary();
 	
 		// Constructor, run only once
 		public function Input() {
@@ -50,13 +53,20 @@ package scripts.utils {
 			keys[e.keyCode] = true;
 			
 			// DEBUG
-			//trace(e.keyCode);
+			// trace(e.keyCode);
 		}
 		
 		// KEY_UP
 		private function keyUp(e:KeyboardEvent):void {
 			// Mark the key as no longer being pressed
 			keys[e.keyCode] = false;
+			// Trigger any release events stored in that key
+			if (upEventDict[e.keyCode] is Dictionary) {
+				for each (var func2:Function in upEventDict[e.keyCode]) {
+					func2.call();
+				}
+				func2 = null;
+			}
 		}
 		
 		// Returns the state of the specified key
@@ -83,6 +93,27 @@ package scripts.utils {
 			
 			// DEBUG
 			//trace("Removed event " + keyname + " from " + code);
+		}
+		
+		// Add an event to the key
+		public static function addUpEvent(code:int, event:Function, keyname:String):void {
+			// Initiate the dictionnary for that key if needed
+			if (upEventDict[code] == null) {upEventDict[code] = new Dictionary();}
+			// Add the function to that key
+			upEventDict[code][keyname] = event;
+			
+			// DEBUG
+			//trace("Added release event " + keyname + " to " + code);
+		}
+		
+		// Remove a specified event from the dictionnary of a specified key
+		public static function removeUpEvent(code:int, keyname:String):void {
+			if (upEventDict[code] is Dictionary) {
+				delete upEventDict[code][keyname];
+			}
+			
+			// DEBUG
+			//trace("Removed release event " + keyname + " from " + code);
 		}
 		
 		// Erase all events
