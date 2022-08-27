@@ -5,6 +5,8 @@
 
 package {
 	import flash.display.MovieClip;
+	import flash.display.Stage;
+	import flash.display.StageQuality;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.text.TextFormat;
@@ -67,6 +69,8 @@ package {
 		public function Main() {
 			// Keep a reference to the screen
 			screen = this;
+			// Disable anti-aliasing! :)
+			stage.quality = StageQuality.LOW;
 			
 			// Set up titleFormat
 			titleFormat = new TextFormat();

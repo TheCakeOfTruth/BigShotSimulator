@@ -54,7 +54,7 @@ package scripts.spam {
 			// His parts and his attacks
 			parts = [rarm, rwing, rleg, lleg, body, larm, lwing, head, body];
 			//attacks = [FlyingHeads, RollerCoaster, HeartAttack, PipisForYou];
-			attacks = [TestAttack];
+			attacks = [PhoneCrawl];
 			// Begin the animation
 			setAnimMode("defaultIdle");
 			head.enableRotation = false;
