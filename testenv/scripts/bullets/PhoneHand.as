@@ -13,6 +13,7 @@ package scripts.bullets {
 		public function PhoneHand() {
 			destroyOnHit = false;
 			element = 6;
+			deleteOffScreen = false;
 		}
 	}
 }

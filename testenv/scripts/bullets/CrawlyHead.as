@@ -12,37 +12,27 @@ package scripts.bullets {
 	import scripts.Bullet;
 	import scripts.utils.Wait;
 	import scripts.utils.MovementVector;
-	import scripts.utils.GlobalListener;
 	import scripts.BigShot;
 	
 	public class CrawlyHead extends MovieClip {
 		private var timer:int = 0;
+		public var hspeed:Number = 0;
+		public var friction:Number = 0.25;
 	
 		// Constructor
 		public function CrawlyHead() {
 			head.crawler = this;
 		
-			configureArmSegment(uparm, 96, -21);
-			configureArmSegment(downarm, 86, 201);
+			configureArmSegment(uparm, 106, -21);
+			configureArmSegment(downarm, 66, 201);
 			
 			configureArmSegment(ufarm, 40, -110, true)
 			configureArmSegment(dfarm, 40, -70, true)
 			
-			GlobalListener.addEvent(update, "crawler");
+			moveHandTo(uphone, -70, -70);
+			moveHandTo(dphone, -70, 60);
+
 			addEventListener(Event.REMOVED_FROM_STAGE, cleanup);
-			
-			//moveHeadTo(0, head.y + 10)
-		}
-		
-		// Every frame
-		private function update():void {
-			timer++;
-			/*
-			configureArmSegment(uparm, 5 * Math.sin(timer / 10) + 96, 5 * Math.sin(timer/10) - 21)
-			configureArmSegment(ufarm, 5 * Math.sin(timer / 10) + 100, 5 * Math.sin(timer/10) + 270, true)
-			configureArmSegment(downarm, 5 * Math.cos(timer / 10) + 86, 5 * Math.cos(timer/10) + 201)
-			configureArmSegment(dfarm, 5 * Math.cos(timer / 10) + 100, 5 * Math.cos(timer/10) + 270, true)
-			*/
 		}
 		
 		// Sets up arm lengths and rotations
@@ -67,8 +57,8 @@ package scripts.bullets {
 					var pt:Point = this.globalToLocal(arm.localToGlobal(new Point(arm.ball1.x, arm.ball1.y)));
 					// Hacky way to get the forearm associated to the moved arm
 					forearm = this[arm.name.charAt(0) + "farm"];
-					forearm.x = pt.x
-					forearm.y = pt.y
+					forearm.x = pt.x;
+					forearm.y = pt.y;
 				}
 				else {
 					forearm = arm;
@@ -98,9 +88,17 @@ package scripts.bullets {
 			configureArmSegment(downarm, downPointer.getMagnitude(), downPointer.getAngle() + 90, false, false);
 		}
 		
+		// Move a hand and adjust the forearms accordingly
+		public function moveHandTo(phone, x:Number, y:Number):void {
+			phone.x = x;
+			phone.y = y;
+			var forearm2 = this[phone.name.charAt(0) + "farm"];
+			var phonePointer:MovementVector = MovementVector.getVectorFromDimensions(phone.x - forearm2.x, phone.y - forearm2.y);
+			configureArmSegment(forearm2, phonePointer.getMagnitude(), phonePointer.getAngle() + 90, true);
+		}
+		
 		// Remove things
 		private function cleanup(e:Event):void {
-			GlobalListener.removeEvent("crawler");
 			removeEventListener(Event.REMOVED_FROM_STAGE, cleanup);
 		}
 	}

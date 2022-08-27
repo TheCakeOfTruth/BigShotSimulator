@@ -20,6 +20,7 @@ package scripts {
 		public var grazeID:int = -1;
 		public var hasGrazed:Boolean = false;
 		public var element = 0;
+		public var deleteOffScreen:Boolean = true;
 		private var eventID:String;
 		
 		// Constructor
@@ -97,7 +98,9 @@ package scripts {
 					}
 					
 					// Destroy offscreen bullets
-					if (this.x < -300 || this.x > 940 || this.y < -300 || this.y > 780) {destroy();}
+					if (deleteOffScreen) {
+						if (this.x < -300 || this.x > 940 || this.y < -300 || this.y > 780) {destroy();}
+					}
 				}
 				else {
 					// Remove from graze list if the object is destroyed

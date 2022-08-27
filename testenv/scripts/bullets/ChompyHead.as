@@ -5,6 +5,7 @@
 
 package scripts.bullets {
 	import flash.display.MovieClip;
+	import flash.geom.Point;
 	import scripts.Bullet;
 	import scripts.utils.Wait;
 	import scripts.BigShot;
@@ -18,14 +19,22 @@ package scripts.bullets {
 			destroyBigShot = true;
 			destroyOnHit = false;
 			element = 6;
+			deleteOffScreen = false;
 		}
 		
+		// When the head is shot
 		public override function onShot(shot):void {
-			if (shot is BigShot) {
-				x += 4;
-			}
-			else {
-				x += 1;
+			// Keep him from going too far
+			if (crawler.localToGlobal(new Point(x, 0)).x < 480) {
+				// Double speed for big shots
+				if (shot is BigShot) {
+					crawler.hspeed += 4;
+				}
+				else {
+					crawler.hspeed += 2;
+				}
+				// Cap speed at 8 so it doesn't take forever to reset after big shot spam (you dirty cheater)
+				crawler.hspeed = Math.min(8, crawler.hspeed);
 			}
 		}
 	}
