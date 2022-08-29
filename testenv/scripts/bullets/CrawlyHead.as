@@ -9,9 +9,11 @@ package scripts.bullets {
 	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.geom.ColorTransform;
+	import scripts.Player;
 	import scripts.Bullet;
 	import scripts.utils.Wait;
 	import scripts.utils.MovementVector;
+	import scripts.utils.GlobalListener;
 	import scripts.BigShot;
 	
 	public class CrawlyHead extends MovieClip {
@@ -32,7 +34,13 @@ package scripts.bullets {
 			moveHandTo(uphone, -70, -70);
 			moveHandTo(dphone, -70, 60);
 
+			GlobalListener.addEvent(update, "updateCrawler");
 			addEventListener(Event.REMOVED_FROM_STAGE, cleanup);
+		}
+		
+		// Every frame
+		private function update():void {
+			// collision code for the arms would go here if i knew how to do collision code :(
 		}
 		
 		// Sets up arm lengths and rotations
@@ -99,6 +107,7 @@ package scripts.bullets {
 		
 		// Remove things
 		private function cleanup(e:Event):void {
+			GlobalListener.removeEvent("updateCrawler");
 			removeEventListener(Event.REMOVED_FROM_STAGE, cleanup);
 		}
 	}

@@ -8,6 +8,7 @@ package scripts.bullets {
 	import flash.geom.Point;
 	import scripts.Bullet;
 	import scripts.utils.Wait;
+	import scripts.SoundLibrary;
 	import scripts.BigShot;
 	
 	public class ChompyHead extends Bullet {
@@ -35,6 +36,7 @@ package scripts.bullets {
 				}
 				// Cap speed at 8 so it doesn't take forever to reset after big shot spam (you dirty cheater)
 				crawler.hspeed = Math.min(8, crawler.hspeed);
+				SoundLibrary.play("enemydamage");
 			}
 		}
 	}

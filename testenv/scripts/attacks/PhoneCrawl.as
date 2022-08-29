@@ -16,6 +16,8 @@ package scripts.attacks {
 		private var monster:CrawlyHead;
 		private var moving:Boolean = false;
 		private var startedAt:int;
+		private var btimer:int = 0;
+		private var threshold:int = 40;
 	
 		// Constructor
 		public function PhoneCrawl() {
@@ -29,12 +31,15 @@ package scripts.attacks {
 			monster.alpha = 0;
 			addChild(monster);
 			
+			if (difficulty == 1) {threshold = 30;}
+			else if (difficulty == 2) {threshold = 60;}
+			
 			new RepeatUntil(function() {
 				Main.screen.spamton.container.alpha -= 0.025;
 			}, function() {
 				if (Main.screen.spamton.container.alpha <= 0) {
 					new Wait(5, function() {
-						new Wait(10, function() {new Wait(30, function() {monster.head.gotoAndPlay("open");});});
+						new Wait(10, function() {new Wait(threshold, function() {monster.head.gotoAndPlay("open");});});
 						new RepeatUntil(function() {
 							monster.alpha += 0.025;
 						}, function() {if (monster.alpha >= 1) {return true;}});});
@@ -53,16 +58,11 @@ package scripts.attacks {
 			}
 			else {monster.hspeed = 0;}
 			
-			// Move up and down differently depending on difficulty
-			if (difficulty == 0) {monster.moveHeadTo(monster.head.x, Math.sin(timer / 16) * 40);}
-			else if (difficulty == 1 || difficulty == 2) {monster.moveHeadTo(monster.head.x, Math.sin(timer / 20) * 60);}
-			
-			
 			// The crawl
 			if (difficulty < 2) {
 				// Top hand
 				if (Math.sin(timer / 10) < 0) {
-					monster.moveHandTo(monster.uphone, monster.uphone.x + (Math.sin(timer / 10) * 4)/2, monster.uphone.y + (Math.cos(timer / 10) * 4));
+					monster.moveHandTo(monster.uphone, monster.uphone.x + (Math.sin(timer / 10) * 4)/2, Math.min(-70, monster.uphone.y + (Math.cos(timer / 10) * 4)));
 					monster.ufarm.x += Math.sin(timer / 10) * 2;
 					monster.ufarm.y += Math.cos(timer / 10) * 2;
 				}
@@ -75,9 +75,24 @@ package scripts.attacks {
 				}
 			}
 			
-			// Move the rest of the body (by moving the head)
+			// Move the head up and down differently depending on difficulty
+			if (difficulty == 0) {monster.moveHeadTo(monster.head.x, Math.sin(timer / 16) * 40);}
+			else if (difficulty == 1 || difficulty == 2) {monster.moveHeadTo(monster.head.x, Math.sin(timer / 20) * 60);}
+			
+			// Move the head and arms horizontally
 			if (difficulty < 2) {monster.moveHeadTo(monster.head.x + (monster.uphone.x + 70 - monster.head.x) * 0.2, monster.head.y);}
 			else {monster.moveHeadTo(monster.head.x - 0.5, monster.head.y);}
+			
+			// When the head fires shots
+			btimer++
+			if (btimer >= threshold && monster.alpha >= 1) {
+				btimer = 0;
+				var shot:CrawlShot = new CrawlShot();
+				var headpos:Point = monster.localToGlobal(new Point(monster.head.x, monster.head.y));
+				shot.x = headpos.x;
+				shot.y = headpos.y;
+				addBullet(shot);
+			}
 		}
 		
 		// Make sure the objects can be properly removed
