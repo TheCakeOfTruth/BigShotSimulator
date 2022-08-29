@@ -56,5 +56,19 @@ package scripts.utils {
 			var m:Number = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 			return new MovementVector(a, m);
 		}
+		
+		// Gets the dot product of two vectors
+		public static function dotProduct(v1:MovementVector, v2:MovementVector):Number {
+			var v1d:Point = v1.getDimensions();
+			var v2d:Point = v2.getDimensions();
+			return (v1d.x * v2d.x) + (v1d.y * v2d.y);
+		}
+		
+		// Returns a projected vector of v1 on v2
+		public static function vProject(v1:MovementVector, v2:MovementVector):MovementVector {
+			var multiplier:Number = dotProduct(v1, v2) / Math.pow(v2.getMagnitude(), 2);
+			var v2dim:Point = v2.getDimensions();
+			return getVectorFromDimensions(v2dim.x * multiplier, v2dim.y * multiplier);
+		}
 	}
 }

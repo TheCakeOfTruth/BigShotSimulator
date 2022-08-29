@@ -125,6 +125,11 @@ package scripts {
 			arena.x = arenaConfig.x;
 			arena.y = arenaConfig.y;
 			arena.setSize(arenaConfig.width, arenaConfig.height);
+			
+			var rot:Number = 0;
+			if (arenaConfig.rotation != null) {rot = arenaConfig.rotation;}
+			arena.rotation = rot;
+			
 			Main.screen.addChildAt(arena, Main.screen.getChildIndex(this));
 			
 			arena.scaleX = 0;
@@ -136,7 +141,7 @@ package scripts {
 			}, function() {if (arena.scaleX >= 1) {
 				arena.scaleX = 1;
 				arena.scaleY = 1;
-				arena.rotation = 0;
+				arena.rotation = rot;
 				return true;
 			}})
 		}
