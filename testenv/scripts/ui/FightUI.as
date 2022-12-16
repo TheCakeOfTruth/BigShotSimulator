@@ -9,7 +9,7 @@ package scripts.ui {
 	import flash.events.Event;
 	import flash.media.SoundTransform;
 	import scripts.DamageNumber;
-	import scripts.Kris;
+	import scripts.party.Kris;
 	import scripts.SoundLibrary;
 	import scripts.spam.Spamton;
 	import scripts.utils.Input;
@@ -61,7 +61,7 @@ package scripts.ui {
 			SoundLibrary.play("swing", 0.5);
 			
 			// Animate and damage
-			Kris.instance.gotoAndPlay("fight");
+			Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.fight);
 			Main.screen.spamton.damage(calculateDamage());
 		}
 		
@@ -75,7 +75,7 @@ package scripts.ui {
 			else {accuracy = Math.abs(100 - (Math.abs(strikeTime - 84) / 4 * 2))}
 			// Increase TP
 			TPMeter.instance.addTP(accuracy / 10);
-			return Math.round(((Kris.instance.calculateAttack() * accuracy) / 20) - 3 * Main.screen.spamton.defense);
+			return Math.round(((Main.screen.kris.calculateAttack() * accuracy) / 20) - 3 * Main.screen.spamton.defense);
 		}
 		
 		// Start to fade the FightUI

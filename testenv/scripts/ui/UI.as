@@ -14,7 +14,7 @@ package scripts.ui {
 	import flash.text.TextFieldAutoSize;
 	import scripts.Item;
 	import scripts.SoundLibrary;
-	import scripts.Kris;
+	import scripts.party.Kris;
 	import scripts.utils.Wait;
 	import scripts.utils.Input;
 	import scripts.utils.RepeatUntil;
@@ -130,9 +130,9 @@ package scripts.ui {
 				showMenu();
 			}
 			
-			if (Kris.instance.isDefending) {
-				Kris.instance.gotoAndPlay("idle");
-				Kris.instance.isDefending = false;
+			if (Main.screen.kris.isDefending) {
+				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.idle);
+				Main.screen.kris.isDefending = false;
 			}
 		
 			Input.addEvent(37, function(){moveBtn("L")}, "selectingButton");
@@ -170,8 +170,8 @@ package scripts.ui {
 			else if (selectedButton == 4) {
 				Main.setState("enemyDialogue");
 				TPMeter.instance.addTP(40);
-				Kris.instance.gotoAndPlay("defend");
-				Kris.instance.isDefending = true;
+				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.defend);
+				Main.screen.kris.isDefending = true;
 				info.icon.gotoAndStop("defend");
 				hideMenu();
 			}
@@ -228,7 +228,7 @@ package scripts.ui {
 				Main.setState("attacking");
 				info.icon.gotoAndStop("fight");
 				hideMenu();
-				Kris.instance.gotoAndStop("prefight");
+				Main.screen.kris.gotoAndStop("prefight");
 			}
 			
 			// ACT
@@ -237,10 +237,10 @@ package scripts.ui {
 			// SPARE
 			if (selectedButton == 3) {
 				Main.setState("actionResult");
-				Kris.instance.gotoAndPlay("act");
+				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.act);
 				info.icon.gotoAndStop("spare");
 				hideMenu();
-				new Wait(30, function() {Kris.instance.gotoAndPlay("idle"); info.icon.gotoAndStop("head");})
+				new Wait(30, function() {Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.idle); info.icon.gotoAndStop("head");})
 				setText(XMLToDialogue(Main.dialogue.krisSpare)[0] + " SPAMTON NEO!\n" + XMLToDialogue(Main.dialogue.spareFail)[0], function() {Main.setState("enemyDialogue");});
 			}
 		}
@@ -402,7 +402,7 @@ package scripts.ui {
 							});
 						});
 						// There's code in Kris' item animation that uses the item
-						Kris.instance.gotoAndPlay("item");
+						Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.item);
 					}
 				}
 				
@@ -535,7 +535,7 @@ package scripts.ui {
 					});
 				});
 				// See Kris' item animation code
-				Kris.instance.gotoAndPlay("item");
+				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.item);
 			};
 			this.addChild(krisoption);
 			menuElements.push(krisoption);

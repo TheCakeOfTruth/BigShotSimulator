@@ -292,16 +292,16 @@ package scripts {
 				// Base dmg
 				totaldamage = Main.screen.spamton.attack * damageMultiplier;
 				// For every defense point
-				for (var i:int = 0; i < Kris.instance.calculateDefense(); i++) {
+				for (var i:int = 0; i < Main.screen.kris.calculateDefense(); i++) {
 					// Reduce damage by a number proportional to the ratio between totaldamage and maxhp (160)
 					if (totaldamage > (1/5) * 160) {totaldamage -= 3;}
 					else if (totaldamage > (1/8) * 160) {totaldamage -= 2;}
 					else {totaldamage -= 1;}
 				}
 				// DEFEND reduces damage to 2/3
-				if (Kris.instance.isDefending) {totaldamage = Math.ceil(totaldamage * (2/3));}
+				if (Main.screen.kris.isDefending) {totaldamage = Math.ceil(totaldamage * (2/3));}
 				// Elemental resistance
-				totaldamage = Math.ceil(totaldamage * Kris.instance.getResistPercent(bulletElement));
+				totaldamage = Math.ceil(totaldamage * Main.screen.kris.getResistPercent(bulletElement));
 			}
 			// Limit damage during bluelight mode
 			else {totaldamage = 11;}
@@ -334,11 +334,11 @@ package scripts {
 				// Change HP
 				UI.instance.setHP(new_hp);
 				// Show damage
-				new DamageNumber(totaldamage, Kris.instance);
+				new DamageNumber(totaldamage, Main.screen.kris);
 				// Shake screen
 				Main.screen.shakeScreen();
 				// Change animation
-				Kris.instance.gotoAndPlay("hurt");
+				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.hurt);
 				return false;
 			}
 		}
@@ -351,7 +351,7 @@ package scripts {
 			var txt = n;
 			if (newhp == 160) {txt = "max";}
 			// Make a DamageNumber
-			new DamageNumber(txt, Kris.instance, "green");
+			new DamageNumber(txt, Main.screen.kris, "green");
 			// Change HP
 			UI.instance.setHP(newhp);
 			// Play a sound
