@@ -10,7 +10,7 @@ package scripts.spam {
 	import flash.media.SoundTransform;
 	import flash.geom.ColorTransform;
 	import scripts.SoundLibrary;
-	import scripts.party.Kris;
+	import scripts.Kris;
 	import scripts.Player;
 	import scripts.DamageNumber;
 	import scripts.DialogueBubble;
@@ -53,8 +53,8 @@ package scripts.spam {
 			new Wait(1, function() {checktext = Main.dialogue.spamNeoCheck1;});
 			// His parts and his attacks
 			parts = [rarm, rwing, rleg, lleg, body, larm, lwing, head, body];
-			attacks = [FlyingHeads, RollerCoaster, HeartAttack, PipisForYou];
-			// attacks = [PhoneCrawl];
+			//attacks = [FlyingHeads, RollerCoaster, HeartAttack, PipisForYou];
+			attacks = [PhoneCrawl];
 			// Begin the animation
 			setAnimMode("defaultIdle");
 			head.enableRotation = false;
@@ -68,7 +68,7 @@ package scripts.spam {
 				UI.instance.setText(checktext, function() {Main.setState("enemyDialogue");});
 				UI.instance.hideMenu();
 				UI.instance.info.icon.gotoAndStop("act");
-				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.act);
+				Kris.instance.gotoAndPlay("act");
 				checktext = Main.dialogue.spamNeoCheck2;
 			}
 			check.toggleSelection(true);
@@ -84,16 +84,16 @@ package scripts.spam {
 				UI.instance.hideMenu();
 				UI.instance.setText(Main.getText("XSlash"), function() {Main.setState("enemyDialogue");});
 				// Calculate damage
-				var dmg:Number = Math.round(1.25 * (((Main.screen.kris.calculateAttack() * 150) / 20) - 3 * Main.screen.spamton.defense));
+				var dmg:Number = Math.round(1.25 * (((Kris.instance.calculateAttack() * 150) / 20) - 3 * Main.screen.spamton.defense));
 				// Animation
-				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.fight);
+				Kris.instance.gotoAndPlay("fight");
 				SoundLibrary.play("xslash", 0.5);
 				// Damage
 				damage(dmg, false, false);
 				// Wait a little
 				new Wait(30, function() {
 					// Animate again
-					Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.fight);
+					Kris.instance.gotoAndPlay("fight");
 					SoundLibrary.play("xslash", 0.5);
 					// Damage again
 					damage(dmg, false, true, true);
@@ -120,15 +120,15 @@ package scripts.spam {
 				img.y -= img.height / 2;
 				healingpipis.scaleX = 0;
 				healingpipis.scaleY = 0;
-				healingpipis.x = Main.screen.kris.x + 85;
-				healingpipis.y = Main.screen.kris.y - 22;
+				healingpipis.x = Kris.instance.x + 85;
+				healingpipis.y = Kris.instance.y - 22;
 				Main.screen.addChild(healingpipis);
 				
 				// Move towards Kris
 				var moveToKris:Function = function() {
 					new Wait(20, function() {
 						new RepeatUntil(function () {healingpipis.x -= 4}, function() {
-							if (healingpipis.x <= Main.screen.kris.x + 20) {
+							if (healingpipis.x <= Kris.instance.x + 20) {
 								// Disappear
 								new RepeatUntil(function() {
 									healingpipis.scaleX += 0.04;
@@ -160,7 +160,7 @@ package scripts.spam {
 					return true;
 				}});
 				// Animate Kris
-				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.act);
+				Kris.instance.gotoAndPlay("act");
 			}
 			friedpipis.description = Main.getText("itemHeal") + "\n120 HP";
 			friedpipis.txt.x -=6;
@@ -238,7 +238,7 @@ package scripts.spam {
 					// Restart animation
 					if (resetAnim) {
 						new Wait(25, function() {
-							Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.idle);
+							Kris.instance.gotoAndPlay("idle");
 							head.rotation = 0;
 							head.play();
 							forAllParts(function() {part.enableRotation = true;});
@@ -294,7 +294,7 @@ package scripts.spam {
 		private function startBluelight():void {
 			// Setup
 			bluelightMode = true;
-			Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.idle);
+			Kris.instance.gotoAndPlay("idle");
 			UI.instance.setText("");
 			Main.setState("none");
 			Main.bgm.fadeOut();
@@ -342,7 +342,7 @@ package scripts.spam {
 				});
 				UI.instance.hideMenu();
 				UI.instance.info.icon.gotoAndStop("act");
-				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.act);
+				Kris.instance.gotoAndPlay("act");
 			}
 			// Create the icon of the MenuOption
 			help.createIcon(new RalseiIcon(0,0));

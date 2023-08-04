@@ -1,34 +1,23 @@
-/*
-	Date: 15/12/22
-	Description: Base class for party members
+﻿/*
+	Date: 12-11-2021
+	Description: * It's what they call "You."
 */
 
-package scripts.party {
+package scripts {
 	import flash.display.MovieClip;
+	import scripts.utils.Wait;
 	
-	public class PartyMember extends MovieClip {
+	public class Kris extends MovieClip {
+		public static var instance:Kris;
+		public static var weapon:Object;
+		public static var armor:Array = [];
+		
 		public var isDefending:Boolean = false;
-		
-		public var attack:Number;
-		public var defense:Number;
-		public var magic:Number;
-		
-		public var weapon:Object = {at: 0};
-		public var armor:Array = [];
-		
-		public var anims:Object = {
-			idle: "idle",
-			hurt: "hurt",
-			act: "act",
-			prefight: "prefight",
-			fight: "fight",
-			item: "item",
-			defend: "defend",
-			spell: "spell"
-		}
+		public var attack:Number = 14;
+		public var defense:Number = 2;
 		
 		// Constructor
-		public function PartyMember() {}
+		public function Kris() {instance = this;}
 		
 		// Returns combined AT stat
 		public function calculateAttack():Number {
@@ -53,12 +42,12 @@ package scripts.party {
 		public function calculateDefense():Number {
 			// Get Armor DF
 			var armordf:Number = 0;
-			for each (var equipment:Object in armor) {
-				var df:Number = Number(equipment.df);
+			for each (var equip:Object in armor) {
+				var df:Number = Number(equip.df);
 				if (isNaN(df)) {df = 0;}
 				armordf += df;
 			}
-			equipment = null;
+			equip = null;
 			
 			// Get Weapon DF
 			var weapondf:Number = Number(weapon.df);
@@ -66,25 +55,6 @@ package scripts.party {
 			
 			// Return sum
 			return defense + armordf + weapondf;
-		}
-		
-		// Returns combined MAGIC stat
-		public function calculateMagic():Number {
-			// Get Armor MAGIC
-			var armormg:Number = 0;
-			for each (var equipment:Object in armor) {
-				var mg:Number = Number(equipment.magic);
-				if (isNaN(mg)) {mg = 0;}
-				armormg += mg;
-			}
-			equipment = null;
-			
-			// Get Weapon MAGIC
-			var weaponmg:Number = Number(weapon.magic);
-			if (isNaN(weaponmg)) {weaponmg = 0;}
-			
-			// Return sum
-			return magic + armormg + weaponmg;
 		}
 		
 		// Return elemental resistance 

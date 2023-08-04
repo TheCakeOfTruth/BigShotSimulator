@@ -16,7 +16,7 @@ package scripts {
 	import scripts.Arena;
 	import scripts.Bullet;
 	import scripts.Player;
-	import scripts.party.Kris;
+	import scripts.Kris;
 
 	public class EnemyWave extends Sprite {
 		public static var currentWave:EnemyWave;
@@ -75,12 +75,12 @@ package scripts {
 			
 			if (transition) {
 				// Animate the removal of the Player and Arena
-				var returnVector:MovementVector = MovementVector.getVectorFromDimensions(Main.screen.kris.x + 25 - player.x, Main.screen.kris.y - 25 - player.y);
+				var returnVector:MovementVector = MovementVector.getVectorFromDimensions(Kris.instance.x + 25 - player.x, Kris.instance.y - 25 - player.y);
 				returnVector.setMagnitude(returnVector.getMagnitude() / 10);
 				var returnDim:Point = returnVector.getDimensions();
 				if (player) {
 					new RepeatUntil(function() {player.move(returnDim.x, returnDim.y);}, function() {
-						if (player.x <= Main.screen.kris.x + 25) {
+						if (player.x <= Kris.instance.x + 25) {
 							Main.screen.removeChild(player); 
 							player = null;
 							return true;
@@ -155,7 +155,7 @@ package scripts {
 			
 			// Start at Kris
 			player = new Player();
-			player.moveTo(Main.screen.kris.x + 25, Main.screen.kris.y - 25);
+			player.moveTo(Kris.instance.x + 25, Kris.instance.y - 25);
 			// Disable inputs during animation
 			player.takeInput = false;
 			Main.screen.addChildAt(player, Main.screen.getChildIndex(this) + 1);

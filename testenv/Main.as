@@ -20,7 +20,7 @@ package {
 	import flash.geom.ColorTransform;
 	import fl.controls.ComboBox;
 	import scripts.DialogueBubble;
-	import scripts.party.Kris;
+	import scripts.Kris;
 	import scripts.SoundLibrary;
 	import scripts.DamageNumber;
 	import scripts.Bullet;
@@ -38,7 +38,6 @@ package {
 	import scripts.utils.Input;
 	import scripts.utils.BetterSoundChannel;
 	import scripts.spam.Spamton;
-	import scripts.spam.SpamtonContainer;
 	import lang.LocalizationHandler;
 	
 	public class Main extends MovieClip {
@@ -50,13 +49,7 @@ package {
 		public static var isMenu:Boolean;
 		
 		public var spamton:Spamton;
-		public var sc:SpamtonContainer;
-		public var kris;
-		
-		public var actors:Object = {
-			party: [],
-			enemies: []
-		}
+		public var kris:Kris;
 		
 		// Debug tools
 		private var skipmenu:Boolean = true;
@@ -170,7 +163,7 @@ package {
 			else if (newstate == "itemTarget") {UI.instance.enterItemTarget();}
 			else if (newstate == "enemyDialogue") {
 				// Reset Kris' animation if necessary
-				if (!Main.screen.kris.isDefending) {Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.idle);}
+				if (!Kris.instance.isDefending) {Kris.instance.gotoAndPlay("idle");}
 				// Hide UI text
 				UI.instance.setText("");
 				// Create a dialogue bubble
@@ -247,7 +240,7 @@ package {
 			GlobalListener.clearEvents();
 			bgm.stop();
 			screen.spamton.head.stop();
-			Main.screen.kris.stop();
+			screen.kris.stop();
 			for each (var b:Bullet in EnemyWave.currentWave.bullets) {b.stop();}
 			Wait.clearQueue();
 			RepeatUntil.clearQueue();
@@ -266,7 +259,7 @@ package {
 				EnemyWave.currentWave.endWave(false);
 				setState("void");
 				screen.spamton.destroy();
-				screen.removeChild(Main.screen.kris);
+				screen.removeChild(screen.kris);
 				screen.removeChild(TPMeter.instance);
 				screen.removeChild(UI.instance);
 				
@@ -281,16 +274,15 @@ package {
 		// Set up the game again post-GameOverScreen
 		public static function reinitialize():void {
 			// Kris
-			Main.screen.kris = new Kris();
-			Main.screen.kris.x = 76;
-			Main.screen.kris.y = 250;
-			Main.screen.kris.scaleX = 2;
-			Main.screen.kris.scaleY = 2;
-			screen.addChild(Main.screen.kris);
+			screen.kris = new Kris();
+			screen.kris.x = 76;
+			screen.kris.y = 250;
+			screen.kris.scaleX = 2;
+			screen.kris.scaleY = 2;
+			screen.addChild(screen.kris);
 			
 			// Spamton
-			screen.sc = new SpamtonContainer();
-			screen.spamton = screen.sc.spamton;
+			screen.spamton = new Spamton();
 			screen.spamton.x = 460;
 			screen.spamton.y = 254;
 			screen.spamton.scaleX = 2;
@@ -322,8 +314,6 @@ package {
 			screen.changeMenu("none");
 			screen.gotoAndStop(1, "Fight");
 			screen.spamton = screen.sc.spamton;
-			screen.actors["party"].push(Main.screen.kris)
-			screen.actors["enemies"].push(screen.sc.spamton)
 			setupInventory();
 		}
 		
@@ -336,10 +326,10 @@ package {
 			}
 			
 			// Equipement
-			screen.kris.weapon = screen.selectedSword.item;
-			screen.kris.armor = [];
-			screen.kris.armor.push(screen.selectedArmorA.item);
-			screen.kris.armor.push(screen.selectedArmorB.item);
+			Kris.weapon = screen.selectedSword.item;
+			Kris.armor = [];
+			Kris.armor.push(screen.selectedArmorA.item);
+			Kris.armor.push(screen.selectedArmorB.item);
 		}
 		
 		// Setup mainMenu
