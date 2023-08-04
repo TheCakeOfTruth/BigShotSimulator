@@ -39,6 +39,7 @@ package {
 	import scripts.utils.BetterSoundChannel;
 	import scripts.spam.Spamton;
 	import scripts.spam.SpamtonContainer;
+	import scripts.party.*;
 	import lang.LocalizationHandler;
 	
 	public class Main extends MovieClip {
@@ -53,6 +54,7 @@ package {
 		public var sc:SpamtonContainer;
 		public var kris;
 		
+		public var party:Array = ["kris", "noelle"];
 		public var actors:Object = {
 			party: [],
 			enemies: []
@@ -112,6 +114,8 @@ package {
 			// Establish some variables used for debugging
 			_time = getTimer();
 			addEventListener(Event.ENTER_FRAME, update);
+			
+			setup();
 		}
 		
 		// Run each frame
@@ -145,6 +149,24 @@ package {
 				screen.x -= val_x;
 				screen.y -= val_y;
 			});
+		}
+		
+		public function setup():void {
+			for (var id in party) {
+				setupPartyMember(party[id], id);
+			}
+		}
+		
+		private function setupPartyMember(member:String, id:int):void {
+			var newmember;
+			if (member == "kris") {newmember = new Kris(); kris = newmember;}
+			if (member == "noelle") {newmember = new Noelle();}
+			newmember.x = Party.positions[party.length - 1][id][0];
+			newmember.y = Party.positions[party.length - 1][id][1];
+			newmember.scaleX = 2;
+			newmember.scaleY = 2;
+			// trace(newmember.x, newmember.y);
+			screen.addChild(newmember); 
 		}
 		
 		// Change the game state

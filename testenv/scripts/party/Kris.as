@@ -10,8 +10,17 @@ package scripts.party {
 		// Constructor
 		public function Kris() {
 			instance = this;
+			
 			attack = 14;
 			defense = 2;
+			
+			button2 = "act";
+			
+			colors = {
+				hpbar:		{r: 0,   g: 255, b: 255},
+				icon:		{r: 0,   g: 162, b: 232},
+				numbers:	{r: 128, g: 255, b: 255}
+			}
 		}
 	}
 }

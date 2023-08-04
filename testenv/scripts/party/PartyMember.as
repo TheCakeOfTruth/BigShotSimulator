@@ -16,6 +16,8 @@ package scripts.party {
 		public var weapon:Object = {at: 0};
 		public var armor:Array = [];
 		
+		public var button2:String = "spell";
+		
 		public var anims:Object = {
 			idle: "idle",
 			hurt: "hurt",
@@ -25,6 +27,12 @@ package scripts.party {
 			item: "item",
 			defend: "defend",
 			spell: "spell"
+		}
+		
+		public var colors:Object = {
+			hpbar:		{r: 255, g: 255, b: 255},
+			icon:		{r: 255, g: 255, b: 255},
+			numbers:	{r: 255, g: 255, b: 255}
 		}
 		
 		// Constructor
