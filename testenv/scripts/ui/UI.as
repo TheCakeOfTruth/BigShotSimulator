@@ -130,10 +130,12 @@ package scripts.ui {
 				showMenu();
 			}
 			
+			/*
 			if (Main.screen.kris.isDefending) {
 				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.idle);
 				Main.screen.kris.isDefending = false;
 			}
+			*/
 		
 			Input.addEvent(37, function(){moveBtn("L")}, "selectingButton");
 			Input.addEvent(39, function(){moveBtn("R")}, "selectingButton");

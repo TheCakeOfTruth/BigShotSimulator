@@ -4,6 +4,8 @@
 */
 
 package scripts.party {
+	import flash.geom.ColorTransform;
+
 	public class Kris extends PartyMember {
 		public static var instance:Kris;
 		
@@ -11,15 +13,19 @@ package scripts.party {
 		public function Kris() {
 			instance = this;
 			
+			hp = 160;
+			maxhp = 160;
+			
 			attack = 14;
 			defense = 2;
 			
 			button2 = "act";
 			
+			startingIcon = "kris0";
 			colors = {
-				hpbar:		{r: 0,   g: 255, b: 255},
-				icon:		{r: 0,   g: 162, b: 232},
-				numbers:	{r: 128, g: 255, b: 255}
+				hpbar:		new ColorTransform(0, 1, 1),
+				icon:		new ColorTransform(0, 162/255, 232/255),
+				numbers:	new ColorTransform(128/255, 1, 1)
 			}
 		}
 	}

@@ -10,6 +10,7 @@ package scripts.utils {
 	
 	public class GlobalListener extends Sprite {
 		public static var handler:GlobalListener;
+		public static var globalTimer:int = 0;
 		private static var eventDict:Dictionary = new Dictionary();
 		// For debugging purposes only
 		private static var eventKeys:Dictionary = new Dictionary();
@@ -27,6 +28,7 @@ package scripts.utils {
 				func.call();
 			}
 			func = null;
+			globalTimer++;
 		}
 		
 		// Add an event to eventDict

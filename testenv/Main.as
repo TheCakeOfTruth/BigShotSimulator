@@ -40,6 +40,7 @@ package {
 	import scripts.spam.Spamton;
 	import scripts.spam.SpamtonContainer;
 	import scripts.party.*;
+	import scripts.ui.PartyMemberMenu;
 	import lang.LocalizationHandler;
 	
 	public class Main extends MovieClip {
@@ -114,8 +115,6 @@ package {
 			// Establish some variables used for debugging
 			_time = getTimer();
 			addEventListener(Event.ENTER_FRAME, update);
-			
-			setup();
 		}
 		
 		// Run each frame
@@ -149,24 +148,6 @@ package {
 				screen.x -= val_x;
 				screen.y -= val_y;
 			});
-		}
-		
-		public function setup():void {
-			for (var id in party) {
-				setupPartyMember(party[id], id);
-			}
-		}
-		
-		private function setupPartyMember(member:String, id:int):void {
-			var newmember;
-			if (member == "kris") {newmember = new Kris(); kris = newmember;}
-			if (member == "noelle") {newmember = new Noelle();}
-			newmember.x = Party.positions[party.length - 1][id][0];
-			newmember.y = Party.positions[party.length - 1][id][1];
-			newmember.scaleX = 2;
-			newmember.scaleY = 2;
-			// trace(newmember.x, newmember.y);
-			screen.addChild(newmember); 
 		}
 		
 		// Change the game state
@@ -344,9 +325,44 @@ package {
 			screen.changeMenu("none");
 			screen.gotoAndStop(1, "Fight");
 			screen.spamton = screen.sc.spamton;
-			screen.actors["party"].push(Main.screen.kris)
+			//screen.actors["party"].push(Main.screen.kris)
 			screen.actors["enemies"].push(screen.sc.spamton)
+			
+			screen.setup();
 			setupInventory();
+		}
+		
+		public function setup():void {
+			for (var id in party) {
+				setupPartyMember(party[id], id);
+			}
+			UI.instance.fight.visible = false;
+			UI.instance.item.visible = false;
+			UI.instance.info.visible = false;
+			UI.instance.menu.visible = false;
+			
+			actors.party[0].battleMenu.activate(true)
+			Input.addEvent(49, function() {actors.party[0].battleMenu.activate(); actors.party[1].battleMenu.deactivate();}, "selectKris");
+			Input.addEvent(50, function() {actors.party[0].battleMenu.deactivate(); actors.party[1].battleMenu.activate();}, "selectNoelle");
+		}
+		
+		private function setupPartyMember(member:String, id:int):void {
+			// Create the party member
+			var newmember;
+			if (member == "kris") {newmember = new Kris(); kris = newmember;}
+			if (member == "noelle") {newmember = new Noelle();}
+			if (member == "tester") {newmember = new PartyMember();}
+			newmember.x = Party.positions[party.length - 1][id][0];
+			newmember.y = Party.positions[party.length - 1][id][1];
+			newmember.scaleX = 2;
+			newmember.scaleY = 2;
+			screen.addChild(newmember); 
+			actors.party.push(newmember);
+			
+			// Create the menu
+			var newmenu:PartyMemberMenu = new PartyMemberMenu(newmember);
+			newmenu.x = -(party.length - 1) * (newmenu.width / 2) + id * (newmenu.width);
+			UI.instance.addChild(newmenu);
 		}
 		
 		// Setup inventory and equipment

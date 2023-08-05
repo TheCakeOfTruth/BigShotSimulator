@@ -5,9 +5,14 @@
 
 package scripts.party {
 	import flash.display.MovieClip;
+	import flash.geom.ColorTransform;
+	import scripts.ui.PartyMemberMenu;
 	
 	public class PartyMember extends MovieClip {
 		public var isDefending:Boolean = false;
+		
+		public var hp:int = 20;
+		public var maxhp:int = 20;
 		
 		public var attack:Number;
 		public var defense:Number;
@@ -16,7 +21,11 @@ package scripts.party {
 		public var weapon:Object = {at: 0};
 		public var armor:Array = [];
 		
+		public var cname:String = "kris";
+		public var startingIcon:String = "fight";
 		public var button2:String = "spell";
+		
+		public var battleMenu:PartyMemberMenu;
 		
 		public var anims:Object = {
 			idle: "idle",
@@ -30,9 +39,9 @@ package scripts.party {
 		}
 		
 		public var colors:Object = {
-			hpbar:		{r: 255, g: 255, b: 255},
-			icon:		{r: 255, g: 255, b: 255},
-			numbers:	{r: 255, g: 255, b: 255}
+			hpbar:		new ColorTransform(1, 1, 1),
+			icon:		new ColorTransform(1, 1, 1),
+			numbers:	new ColorTransform(1, 1, 1)
 		}
 		
 		// Constructor

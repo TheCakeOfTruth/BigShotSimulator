@@ -9,7 +9,8 @@ package scripts.party {
 		public static var actions:Array = [];
 		public static var positions:Array = [
 			[[76, 281]],
-			[[76, 176], [76, 264]]
+			[[76, 176], [76, 264]],
+			[[76, 149], [96, 220], [76, 264]]
 		];
 	}
 }

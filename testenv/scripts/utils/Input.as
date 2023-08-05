@@ -53,7 +53,7 @@ package scripts.utils {
 			keys[e.keyCode] = true;
 			
 			// DEBUG
-			// trace(e.keyCode);
+			//trace(e.keyCode);
 		}
 		
 		// KEY_UP
