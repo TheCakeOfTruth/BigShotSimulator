@@ -18,6 +18,8 @@ package scripts.party {
 		public var defense:Number;
 		public var magic:Number;
 		
+		public var downed:Boolean = false;
+		
 		public var weapon:Object = {at: 0};
 		public var armor:Array = [];
 		

@@ -11,15 +11,18 @@ package scripts.ui {
 	
 	public class PartyMemberMenu extends MovieClip {
 		private static var dontColor:Array = ["kris0", "noelle0", "ralsei0", "susie0"];
-		private static var blankColor:ColorTransform = new ColorTransform(1, 1, 1);
+		private static var blankColor:ColorTransform = new ColorTransform();
+		private static var yellowtxtColor:ColorTransform = new ColorTransform(1, 1, 0);
+		private static var redtxtColor:ColorTransform = new ColorTransform(1, 0, 0);
 
 		public var linkedMember:PartyMember;
 		public var refID:String = "menu" + Math.random();
 		public var active:Boolean = true;
 		public var btn2;
+		public var btnArray:Array = [];
+		public var selectedButton:int = 0;
 		
 		public var bars:Array = [];
-		
 		private var barspeed:Number = 0.25;
 		private var barfade:Number = 1/120;
 		
@@ -42,6 +45,8 @@ package scripts.ui {
 			else {btn2 = new MagicBtn();}
 			btn2.x = -49.5; btn2.y = -16;
 			buttons.addChild(btn2);
+			
+			btnArray.push(buttons.fight, btn2, buttons.item, buttons.spare, buttons.defend);
 			
 			// Set up the HP texts
 			updateHP();
@@ -74,6 +79,21 @@ package scripts.ui {
 		public function updateHP():void {
 			info.hptext.setHP(linkedMember.hp);
 			info.hpbar.width = Math.floor(76 * linkedMember.hp / linkedMember.maxhp);
+			info.hpbar.visible = true;
+			linkedMember.downed = false;
+			
+			// Make text yellow when HP is less than 1/5 of maxhp & red when downed
+			var colorToSet:ColorTransform;
+			if (linkedMember.hp <= 0) {
+				colorToSet = redtxtColor;
+				info.hpbar.visible = false;
+				linkedMember.downed = true;
+				// Change icon to downed icon here
+			}
+			else if (linkedMember.hp <= 0.2 * linkedMember.maxhp) {colorToSet = yellowtxtColor;}
+			else {colorToSet = blankColor;}
+			info.hptext.transform.colorTransform = colorToSet;
+			info.maxhp.transform.colorTransform = colorToSet;
 		}
 		
 		// Compact forme

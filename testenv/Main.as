@@ -151,7 +151,8 @@ package {
 		}
 		
 		// Change the game state
-		public static function setState(newstate:String):void {
+		public static function setState(newstate:String):void {}
+		/*
 			// Switch variables
 			oldstate = gameState;
 			gameState = newstate;
@@ -243,6 +244,7 @@ package {
 				screen.addChild(screen.spamton.getAttack());
 			}
 		}
+		*/
 		
 		// Game Over
 		public static function gameOver():void {
@@ -333,17 +335,17 @@ package {
 		}
 		
 		public function setup():void {
-			for (var id in party) {
-				setupPartyMember(party[id], id);
-			}
+			for (var id in party) {setupPartyMember(party[id], id);}
+			
+			/*
 			UI.instance.fight.visible = false;
 			UI.instance.item.visible = false;
 			UI.instance.info.visible = false;
 			UI.instance.menu.visible = false;
-			
-			actors.party[0].battleMenu.activate(true)
-			Input.addEvent(49, function() {actors.party[0].battleMenu.activate(); actors.party[1].battleMenu.deactivate();}, "selectKris");
-			Input.addEvent(50, function() {actors.party[0].battleMenu.deactivate(); actors.party[1].battleMenu.activate();}, "selectNoelle");
+			*/
+			//actors.party[0].battleMenu.activate(true)
+			//Input.addEvent(49, function() {actors.party[0].battleMenu.activate(); actors.party[1].battleMenu.deactivate();}, "selectKris");
+			//Input.addEvent(50, function() {actors.party[0].battleMenu.deactivate(); actors.party[1].battleMenu.activate();}, "selectNoelle");
 		}
 		
 		private function setupPartyMember(member:String, id:int):void {
@@ -358,10 +360,11 @@ package {
 			newmember.scaleY = 2;
 			screen.addChild(newmember); 
 			actors.party.push(newmember);
+			Party.members.push(newmember);
 			
 			// Create the menu
 			var newmenu:PartyMemberMenu = new PartyMemberMenu(newmember);
-			newmenu.x = -(party.length - 1) * (newmenu.width / 2) + id * (newmenu.width);
+			newmenu.x = newmenu.width * (id + 0.5 - 0.5 * party.length);
 			UI.instance.addChild(newmenu);
 		}
 		

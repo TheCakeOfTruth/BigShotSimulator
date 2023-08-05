@@ -20,6 +20,7 @@ package scripts.ui {
 	import scripts.utils.RepeatUntil;
 	import scripts.utils.XMLToDialogue;
 	import scripts.spam.Spamton;
+	import scripts.party.*;
 	
 	public class UI extends Sprite {
 		public static var instance:UI;
@@ -46,15 +47,20 @@ package scripts.ui {
 		private var tptext:SimpleText;
 		private var tpformat:TextFormat = new TextFormat();
 		
+		// NEW STUFF
+		public var menus:Array = [];
+		public var selectedMenu:int = 0;
+		public var menuState:String = "selectingButton";
+		public var oldState:String = "none";
+		public var partyActions:Array = new Array(Party.members.length);
+		
 		// Constructor
 		public function UI() {
 			// An array for the buttons
-			buttons = [fight, act, item, spare, defend];
+			// buttons = [fight, act, item, spare, defend];
 		
 			// Keep a global reference
 			instance = this;
-			// Change the HP
-			setHP(hp);
 			
 			// Setup textformats
 			textformat.letterSpacing = -1;
@@ -68,28 +74,174 @@ package scripts.ui {
 			tpformat.letterSpacing = -2;
 			tpformat.leading = 0;
 			tpformat.color = 0xFFA040;
-		}
-		
-		// Changes HP
-		public function setHP(n:int):void {
-			hp = n;
-			// Change text display
-			info.hptext.setHP(n);
-			// Resize hpbar
-			info.hpbar.width = Math.floor(76 * n / 160);
 			
-			// Make text yellow when HP is less than 1/5 of maxhp
-			var colorToSet:ColorTransform;
-			if (n <= 32) {colorToSet = yellow;}
-			else {colorToSet = white;}
-			info.hptext.transform.colorTransform = colorToSet;
-			info.maxhp.transform.colorTransform = colorToSet;
+			// NEW STUFF
+			// Add party member menus to array & start the initial state
+			new Wait(1, function() {
+				for each (var member:PartyMember in Party.members) {menus.push(member.battleMenu);}
+				menus[selectedMenu].activate(true);
+				enterSelectingButton();
+			});
 		}
 		
 		// Change UI text
 		public function setText(txt, endfunc:Function = null):void {
 			textbox.startText(txt, "defaultvoice", "default", endfunc);
 			textbox.visible = true;
+		}
+		
+		/////////////////////////////////////////////////////////////////// GameState handlers
+		// Changes menuState
+		/*
+			selectingButton:	choosing a button from menus[selectedMenu].btnArray
+			handleActions:		processing each party member's turns
+		*/
+		public function changeState(newstate:String):String {
+			var oldoldState:String = oldState;
+			oldState = menuState;
+			menuState = newstate;
+			return oldoldState;
+		}
+		
+		// Advances through the party's turns
+		public function advanceTurn(simple:Boolean = false):void {
+			// Cleanup
+			if (!simple) {
+				menus[selectedMenu].selectedButton = selectedButton;
+				menus[selectedMenu].btnArray[selectedButton].gotoAndStop("off");
+				menus[selectedMenu].deactivate();
+			}
+			
+			// Store the action for later use
+			if (selectedButton == 0) {partyActions[selectedMenu] = ["fight"];}
+			else if (selectedButton == 1) {} // push act action
+			else if (selectedButton == 2) {} // push item action
+			else if (selectedButton == 3) {} // push spare action
+			else if (selectedButton == 4) {partyActions[selectedMenu] = ["defend"];}
+			
+			// Advance until we reach a valid party member or run out of them.
+			selectedMenu++;
+			while (selectedMenu < menus.length) {
+				if (menus[selectedMenu].linkedMember.downed) {selectedMenu++;}
+				else {break;}
+			}
+			// Handling results
+			if (selectedMenu >= menus.length) {changeState("handleActions");}
+			else {enterSelectingButton();}
+		}
+		
+		// Cancels the previously selected action
+		public function reverseTurn():void {
+			// Cleanup
+			if (selectedMenu > 0) {
+				exitSelectingButton();
+				menus[selectedMenu].selectedButton = selectedButton;
+				menus[selectedMenu].btnArray[selectedButton].gotoAndStop("off");
+				menus[selectedMenu].deactivate();
+				// Reverse until we reach a valid party member or run out of them.
+				selectedMenu--;
+				while (selectedMenu >= 0) {
+					if (menus[selectedMenu].linkedMember.downed) {selectedMenu--;}
+					else {break;}
+				}
+				// Handling results & removing stored actions
+				if (selectedMenu < 0) {selectedMenu = 0;}
+				enterSelectingButton();
+				partyActions[selectedMenu] = null;
+				// Remove defense bonus if necessary
+				if (menus[selectedMenu].linkedMember.isDefending) {
+					menus[selectedMenu].linkedMember.isDefending = false;
+					TPMeter.instance.removeTP(40);
+					menus[selectedMenu].linkedMember.gotoAndPlay(menus[selectedMenu].linkedMember.anims.idle);
+				}
+			}
+		}
+		
+		// Start "selectingButton"
+		public function enterSelectingButton():void {
+			selectedButton = menus[selectedMenu].selectedButton;
+			menus[selectedMenu].activate();
+			
+			Input.addEvent(37, function(){moveBtn("L")}, "selectingButton");
+			Input.addEvent(39, function(){moveBtn("R")}, "selectingButton");
+			Input.addEvent(90, openBtn, "selectingButton");
+			Input.addEvent(88, reverseTurn, "selectingButton");
+			// info.icon.gotoAndStop("head");
+			setText(displayText);
+			textbox.visible = true;
+			updateBtns();
+		}
+		
+		// Open the selected button's menu
+		private function openBtn():void {
+			// FIGHT/ACT/SPARE
+			if (selectedButton == 0 || selectedButton == 1 || selectedButton == 3) {Main.setState("enemySelect");}
+			// ITEM
+			else if (selectedButton == 2) {
+				if (Item.inventory.length > 0) {
+					Main.setState("itemSelect");
+				}
+			}
+			// DEFEND
+			else if (selectedButton == 4) {
+				// Main.setState("enemyDialogue");
+				TPMeter.instance.addTP(40);
+				menus[selectedMenu].linkedMember.gotoAndPlay(menus[selectedMenu].linkedMember.anims.defend);
+				menus[selectedMenu].linkedMember.isDefending = true;
+				menus[selectedMenu].setIcon("defend");
+				exitSelectingButton();
+				advanceTurn();
+				// hideMenu();
+			}
+			SoundLibrary.play("menuselect", 0.5);
+		}
+		
+		// Changes which button is selected
+		private function moveBtn(dir:String):void {
+			oldbutton = selectedButton;
+			if (dir == "L") {
+				selectedButton = (selectedButton - 1) % 5;
+				if (selectedButton < 0) {selectedButton = 5 + selectedButton;}
+			}
+			else {selectedButton = (selectedButton + 1) % 5;}
+			SoundLibrary.play("menumove", 0.5);
+			updateBtns();
+		}
+		
+		// Change the button sprite
+		private function updateBtns():void {
+			menus[selectedMenu].btnArray[oldbutton].gotoAndStop("off");
+			menus[selectedMenu].btnArray[selectedButton].gotoAndStop("on");
+		}
+		
+		// Exit "selectingButton"
+		public function exitSelectingButton():void {
+			// Remove events and hide text
+			Input.removeEvent(37, "selectingButton");
+			Input.removeEvent(39, "selectingButton");
+			Input.removeEvent(90, "selectingButton");
+			Input.removeEvent(88, "selectingButton");
+			// textbox.finishText();
+			// textbox.visible = false;
+		}
+		
+		
+		public function setHP(n:int):void {}
+		/*
+		// Changes HP
+		public function setHP(n:int):void {
+			hp = n;
+			// Change text display
+			//info.hptext.setHP(n);
+			// Resize hpbar
+			//info.hpbar.width = Math.floor(76 * n / 160);
+			
+			// Make text yellow when HP is less than 1/5 of maxhp
+			var colorToSet:ColorTransform;
+			if (n <= 32) {colorToSet = yellow;}
+			else {colorToSet = white;}
+			//info.hptext.transform.colorTransform = colorToSet;
+			//info.maxhp.transform.colorTransform = colorToSet;
 		}
 		
 		// Hide the menu
@@ -120,10 +272,12 @@ package scripts.ui {
 				menu.y -= 3.5
 			}, function() {if (info.y <= -63) {info.y = -63; return true}});
 		}
+		*/
 		
 		/////////////////////////////////////////////////////////////////// GameState handlers
 		
 		// Start "selectingButton"
+		/*
 		public function enterSelectingButton():void {
 			// Reset the menu and Kris
 			if (menu.visible == false) {
@@ -136,7 +290,7 @@ package scripts.ui {
 				Main.screen.kris.isDefending = false;
 			}
 			*/
-		
+		/*
 			Input.addEvent(37, function(){moveBtn("L")}, "selectingButton");
 			Input.addEvent(39, function(){moveBtn("R")}, "selectingButton");
 			Input.addEvent(90, openBtn, "selectingButton");
@@ -565,5 +719,6 @@ package scripts.ui {
 			menuElements = [];
 			Input.removeEvent(88, "back");
 		}
+		*/
 	}
 }

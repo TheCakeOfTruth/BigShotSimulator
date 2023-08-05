@@ -65,9 +65,11 @@ package scripts.spam {
 			check.txt.x -= 6;
 			check.effect = function() {
 				Main.setState("actionResult"); 
+				/*
 				UI.instance.setText(checktext, function() {Main.setState("enemyDialogue");});
 				UI.instance.hideMenu();
 				UI.instance.info.icon.gotoAndStop("act");
+				*/
 				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.act);
 				checktext = Main.dialogue.spamNeoCheck2;
 			}
@@ -81,8 +83,10 @@ package scripts.spam {
 				TPMeter.instance.setTP(TPMeter.instance.tp - (25 / 100) * 250);
 				// Transition
 				Main.setState("actionResult");
+				/*
 				UI.instance.hideMenu();
 				UI.instance.setText(Main.getText("XSlash"), function() {Main.setState("enemyDialogue");});
+				*/
 				// Calculate damage
 				var dmg:Number = Math.round(1.25 * (((Main.screen.kris.calculateAttack() * 150) / 20) - 3 * Main.screen.spamton.defense));
 				// Animation
@@ -108,9 +112,11 @@ package scripts.spam {
 			friedpipis.effect = function() {
 				TPMeter.instance.setTP(TPMeter.instance.tp - (32 / 100) * 250);
 				Main.setState("actionResult");
+				/*
 				UI.instance.info.icon.gotoAndStop("act");
 				UI.instance.hideMenu();
 				UI.instance.setText(Main.getText("pipisHeal"), function() {UI.instance.info.icon.gotoAndStop("head"); Main.setState("enemyDialogue");});
+				*/
 				
 				// pipis
 				var healingpipis:Sprite = new Sprite();
@@ -226,7 +232,7 @@ package scripts.spam {
 				if (doSound) {SoundLibrary.play("enemydamage", 0.5);}
 				new DamageNumber(n, Main.screen.spamton.container, "blue", -40); 
 				shake(); 
-				UI.instance.info.icon.gotoAndStop("head");
+				// UI.instance.info.icon.gotoAndStop("head");
 				hp -= n;
 				// Don't go below 278.54 HP
 				hp = Math.max(278.54, hp);
@@ -295,7 +301,7 @@ package scripts.spam {
 			// Setup
 			bluelightMode = true;
 			Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.idle);
-			UI.instance.setText("");
+			// UI.instance.setText("");
 			Main.setState("none");
 			Main.bgm.fadeOut();
 
@@ -307,6 +313,7 @@ package scripts.spam {
 						SoundLibrary.play("specil");
 						forAllParts(function() {part.rotateToSmart(0);}, false);
 						Main.setState("actionResult");
+						/*
 						UI.instance.setText(Main.dialogue.NEOBluelight, function() {
 							// We're in the end stages, now
 							nextDialogue = XMLToDialogue(Main.dialogue.NEOFireworks);
@@ -315,6 +322,7 @@ package scripts.spam {
 							Main.bgm = SoundLibrary.play("mus_gonewrong", 0.3, int.MAX_VALUE);
 							Main.setState("enemyDialogue");
 						});
+						*/
 					});
 				})
 				textbubble.x = 460;
@@ -335,6 +343,7 @@ package scripts.spam {
 				else if (helpCount == 4) {help.icon.bitmapData = new NoelleIcon(0,0);}
 				else if	(helpCount == 5) {resultText = Main.dialogue.callForHer;}
 				Main.setState("actionResult");
+				/*
 				UI.instance.setText(XMLToDialogue(resultText), function() {
 					UI.instance.info.icon.gotoAndStop("head");
 					nextDialogue = XMLToDialogue(Main.dialogue["NEORant" + helpCount]);
@@ -342,6 +351,7 @@ package scripts.spam {
 				});
 				UI.instance.hideMenu();
 				UI.instance.info.icon.gotoAndStop("act");
+				*/
 				Main.screen.kris.gotoAndPlay(Main.screen.kris.anims.act);
 			}
 			// Create the icon of the MenuOption

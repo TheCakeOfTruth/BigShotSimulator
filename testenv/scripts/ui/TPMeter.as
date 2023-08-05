@@ -68,5 +68,10 @@ package scripts.ui {
 		public function addTP(n:Number):void {
 			setTP(tp + n);
 		}
+		
+		// Shortcut for removing TP
+		public function removeTP(n:Number):void {
+			setTP(Math.max(0, tp - n));
+		}
 	}
 }
